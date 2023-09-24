@@ -1,5 +1,7 @@
 # HCI-BLE-Python
-Python library to access BLE functions using HCI layer
+Python library to access BLE functions using HCI layer   
+
+Very simple, using the BLE commands directly without any interpretation or pythonic class creation    
 
 Credits: based on work in Scapy, Bumble and python-hcipy
 
