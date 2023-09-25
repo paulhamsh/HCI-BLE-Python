@@ -17,10 +17,19 @@ Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't 
 
 Key learning - you need to stop Bluez interfering, and you need to bring the hci device down to do that - and open as a User socket.   Scapy has special code for that.
   
-
+|                 |                                                                          |
 | --------------- | ------------------------------------------------------------------------ |    
 | Packet type     |                                                                          |		  			
 | 8		  |                                                                          |
+
+
+
+
+| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
+
 
 
 Command
