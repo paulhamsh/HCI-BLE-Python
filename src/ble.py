@@ -1,8 +1,23 @@
-#from constants import *
+# BLE library using HCI commands and events
+#
+# Uses Bluez on Linux
+#
+# A lot of information from the Bluetooth Specification v5.4
+# Also reading the Bumble python source code here:
+#     https://github.com/google/bumble
+# And the python-hcipy library here:
+#     https://github.com/TheBubbleworks/python-hcipy
+#
+
 from time import sleep
 from btsocket import *
-from struct import pack, unpack, Struct
+#from struct import pack, unpack, Struct
 
+MY_SCAN_DATA = bytes.fromhex('09094d79424c45446576'  # 0x09  Complete Local Name
+                            )
+MY_ADV_DATA =  bytes.fromhex('020106' +              # 0x01 Flags
+                             '0303eeff'              # 0x03 16 bit Servuce UUID Complete
+                            )
 
 ### constants
 
@@ -59,6 +74,8 @@ def from_data(val):
 def as_addr (byts):
     return ':'.join('{:02x}'.format (a) for a in byts)
 
+def as_hex (byts):
+    return ' '.join('{:02x}'.format (a) for a in byts)
 
 def make_dict(template, data):
     new_dict ={}
@@ -76,20 +93,18 @@ def make_dict(template, data):
                 (dat, leng) = make_dict(templ, data[position:])
                 position += leng
                 arr.append(dat)
-            val = arr
-        elif fmt == 'bitfield':
+            val = arr   
+        elif fmt == 'bitfield 16':
             templ = x[2]
             val = to_u16(data, position)
             position += 2
-            print(bin(val))
             for b in templ:
                 key = b[0]
                 pos = b[1]
                 num_bits = b[2]
                 v = val >> pos
                 mask = (1 << num_bits) - 1
-                print(bin(v), bin(mask), bin(v & mask))
-                new_dict[key] = v & mask
+                new_dict[key] = v & mask     
         elif fmt == '1 octet':
             val = to_u8(data, position)
             position += 1
@@ -104,6 +119,10 @@ def make_dict(template, data):
             position += 1
             val = to_data(data, position, data_len)
             position += data_len
+        elif fmt == 'remaining':
+            data_len = len(data) - position
+            val = to_data(data, position, data_len)
+            position += data_len            
         new_dict[k] = val
     return new_dict, position
 
@@ -140,7 +159,7 @@ def make_data(template, dict_data):
             le = from_u8(len(v_temp))
             v = le + v_temp
         elif fmt == 'data':
-            # it is ok to use data for packing - but not for unpacking (no length!)
+            # it is ok to use data for packing - and remaining for unpacking
             v = from_data(dict_data[k])
         nb += v
     return nb
@@ -168,14 +187,6 @@ def make_cmd(cmd, length):
                    'hci length':          length}
     header = make_data(template, params)
     return header
-
-def hexit(h):
-    ret = ""
-    for i in range(0, len(h)):
-        ret += pack('B', h[i]).hex() + " "
-        if (i + 1) % 20 == 0:
-            ret += "\n           "
-    return ret 
     
 
 class BluetoothLEConnection:
@@ -191,12 +202,10 @@ class BluetoothLEConnection:
     ### helper functions calling BTUserSocket
 
     def send(self, data):
-        print("SENT:     ", hexit(data))
         self.user_socket.send_raw(data)
 
     def receive(self):
         data = self.user_socket.receive_raw()
-        print("RECEIVED: ", hexit(data))
         self.on_data(data)
         return data
  
@@ -329,9 +338,15 @@ class BluetoothLEConnection:
         #     subevent_code                                  1 octet
         #     data                                           n octets
  
-        print("Event: LE Meta event")
+        template =   (('packet type',        '1 octet'),
+                      ('event code',         '1 octet'),
+                      ('prarameter length',  '1 octet'),
+                      ('subevent code',      '1 octet'),
+                     )
+        (di, length) = make_dict(template, data)
 
-        subevent_code = data[3]
+        print("Event: LE Meta event")
+        subevent_code = di['subevent code']
         if   subevent_code == 0x01:                 # LE Connection Complete
             self.on_le_connection_complete(data) 
         elif subevent_code == 0x03:                 # LE Connection Update Complete
@@ -351,18 +366,19 @@ class BluetoothLEConnection:
         #     num_hci_command_packets                        1 octet
         #     command_opcode                                 2 octets
 
+        template =   (('packet type',           '1 octet'),
+                      ('event code',            '1 octet'),
+                      ('prarameter length',     '1 octet'),
+                      ('status',                '1 octet'),
+                      ('number of hci packets', '1 octet'),
+                      ('command opcde',         '2 octets')
+                     )
+                      
+        (di, length) = make_dict(template, data)
+
         print("Event: HCI_Command_Status")
-
-        s = Struct('<BBB BBH')
-        fields = s.unpack(data)
-        evt_cmd_status = dict( 
-            status                  = fields[3],
-            num_hci_command_packets = fields[4],
-            command_opcode          = fields[5],
-            )
-
-        print("EVT_CMD_STATUS = {}".format(evt_cmd_status))   
-            
+        print(di)
+              
     def on_hci_event_disconnect_complete(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.5 HCI_Disconnection_Complete (p2163)
         # HCI_Disconnection_Complete = 0x05
@@ -373,18 +389,18 @@ class BluetoothLEConnection:
         #     connection_handle                              2 octets
         #     reason                                         1 octet
 
+        template =   (('packet type',           '1 octet'),
+                      ('event code',            '1 octet'),
+                      ('parameter length',      '1 octet'),
+                      ('status',                '1 octet'),
+                      ('connection handler',    '2 octets'),
+                      ('reason',                '1 octet')
+                     )
+                      
+        (di, length) = make_dict(template, data)
         print("Event: HCI_Disconnection_Complete")
+        print(di)
 
-        s = Struct('<BBB   BHB')
-        fields = s.unpack(data)
-        evt_disconn_complete = dict(
-            status            = fields[3],
-            connection_handle = fields[4],
-            reason            = fields[5],
-            )
-                
-        print("evt_disconn_complete = {}".format(evt_disconn_complete))
-        print("===== Why??? =====")
    
     def on_hci_event_command_complete(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.14 HCI Command Complete (p2177)
@@ -442,21 +458,35 @@ class BluetoothLEConnection:
         # Specification v5.4  Vol 4 Part E 5.4.2 HCI ACL Packet (p1801)
         #     [packet_type                                  1 octet]
         #     handle (BC[2] PB[2] handle[12])               2 octets 
+        #     packet length                                 2 octets
         #     data_length                                   2 octets
         #     data                                          n octets
+
+        template =   (('packet type',           '1 octet'),
+                      ('handle field',          'bitfield 16',
+                       (('bc',     14, 2),
+                        ('pb',     12, 2),
+                        ('handle', 0, 12))),
+                      ('packet length',         '2 octets'),
+                      ('data size',             '2 octets'),
+                      ('channel',               '2 octets'),
+                      ('data',                  'remaining'),
+                     )
+                      
+        (di, length) = make_dict(template, data)
         
         print("HCI ACL Packet")
-
+        #### TODO - sort out bit maps in data
         handle = data[1] + ((data[2] & 0x0f) << 8)
         flags = (data[2] & 0xf0) >> 4
-        payload = data[7:-1]
+        payload = data[9:]
 
         print('ACL data');
         print('  Handle: {}  Flags: {}  Data: {}'.format(handle, flags, payload))
+        print(di)
 
-
-        # TODO: decode multipart messages
-        #if data[1] >> 12 == ACL_START and (data[8] << 8 + data[7]) == ATT_CID:
+        #### TODO - aggregate ACL packets
+        # flags == ACL_START and channel == ATT_CID
  
     
     # HCI packet received handler    
@@ -467,11 +497,10 @@ class BluetoothLEConnection:
         #     packet_type                                    1 octet
         
         print("\n\n------------------------------------------")
-        print("[HCI READ: ", end="")
-        print(' '.join('{:02x}'.format(x) for x in data), end="")
-        print("]")
+        print("[HCI RECEIVED: ", as_hex(data), "]")
+        
         packet_type = data[0]
-        print("packet_type = {}".format(packet_type))
+        print("Packet type ", packet_type)
 
         if   packet_type == 0x04:                  # event packet
             self.on_hci_event_packet(data)
@@ -483,7 +512,13 @@ class BluetoothLEConnection:
     ### Commands to send to HCI layer
 
     def do_set_advertise_enable(self, enabled):
-        # Specification v5.4  Vol 4 Part E 7.8.9 LE Set Advertising Enable (p2359)       
+        # Specification v5.4  Vol 4 Part E 7.8.9 LE Set Advertising Enable (p2359)   
+        #     [packet_type                                  1 octet]
+        #     [opcode                                       2 octets]
+        #     [packet length                                1 octets]
+        #     advertising enable                            1 octet
+
+        
         print("LE Set Advertising Enable")
         template =   (('enable',             '1 octet'),)
         params =      {'enable':              0x01 if enabled else 0x00}
@@ -652,81 +687,3 @@ class BluetoothLEConnection:
         packet = make_data(template, params)       
         cmd = make_acl(self.handle, len(packet)) + packet
         self.send(cmd)
-
-    def test(self):
-        addr = 'D8:3A:DD:41:84:47'
-        addr_type = LE_PUBLIC_ADDRESS
- 
-        self.do_set_scan(False, False)
-        self.do_add_device_to_accept_list(addr, addr_type)
-        self.do_set_scan_parameters()
-        self.do_set_scan(True, True)
-        self.do_set_scan(False, False)
-        self.do_create_connection(addr, addr_type)  
-        self.do_read_remote_used_features()
-        self.do_read_by_type_request(0x0000, 0xffff, 0x2800)
-        self.do_set_mtu()
-        scan_rsp_data = bytes.fromhex('0909657374696d6f74650e160a182eb8855fb5ddb601000200')
-        adv_data = bytes.fromhex('0201061aff4c000215b9407f30f5f8466eaff925556b57fe6d00010002b6')
-        self.do_set_advertise_enable(False)
-        self.do_set_advertising_parameter()
-        self.do_set_advertising_data(adv_data)
-        self.do_set_scan_response_data(scan_rsp_data)
-
-           
-    def conn(self):
-        addr = 'D8:3A:DD:41:84:47'
-        addr_type = LE_PUBLIC_ADDRESS
- 
-        self.do_set_scan(False, False)
-        self.wait_listen(1)
-
-        self.do_add_device_to_accept_list(addr, addr_type)
-        self.wait_listen(1)
-
-        self.do_set_scan_parameters()
-        self.wait_listen(1)
-
-        self.do_set_scan(True, True)
-        self.wait_listen(10)
-
-        self.do_set_scan(False, False)
-        self.wait_listen(5)
-        
-        self.do_create_connection(addr, addr_type)  
-        self.wait_listen(5)
-        print("="*40)
-        
-        self.do_read_remote_used_features()
-        self.wait_listen(5)
-
-        self.do_set_mtu()
-        self.wait_listen(5)
-        self.do_read_by_type_request(0x0001, 0xffff, 0x2800)
-        self.wait_listen(30)
-
-        
-    def adv(self):
-        scan_rsp_data = bytes.fromhex('0909657374696d6f74650e160a182eb8855fb5ddb601000200')
-        adv_data = bytes.fromhex('0201061aff4c000215b9407f30f5f8466eaff925556b57fe6d00010002b6')
-
-        self.do_set_advertise_enable(False)
-        self.wait_listen(1)
-        self.do_set_advertising_parameter()
-        self.wait_listen(1)
-        self.do_set_advertising_data(adv_data)
-        self.wait_listen(1)
-        self.do_set_scan_response_data(scan_rsp_data)
-        self.wait_listen(1)
-        self.do_set_advertise_enable(True)
-        self.wait_listen(50)
-    
-if __name__ == "__main__":
-    ble = BluetoothLEConnection()
-    ble.conn()
-
-    
-    print("DONE")
-    
-    
-    
