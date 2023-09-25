@@ -453,6 +453,7 @@ class BluetoothLEConnection:
         #     handle (BC[2] PB[2] handle[12])               2 octets 
         #     packet length                                 2 octets
         #     data_length                                   2 octets
+        #     channel                                       2 octets
         #     data                                          n octets
 
         template =   (('packet type',           '1 octet'),
@@ -725,10 +726,12 @@ class BluetoothLEConnection:
     def do_set_mtu(self):
         # Specification v5.4  Vol 3 Part F 3.4.2.1 ATT_EXCHANGE_MTU_REQ (p1416) 
         #     [packet_type                                  1 octet]
-        
+        #     [handle (BC[2] PB[2] handle[12])              2 octets] 
+        #     [packet length                                2 octets]
+        #     [data_length                                  2 octets]
+        #     [channel                                      2 octets]
         #     opcode                                        1 octet
         #     client receive mtu size                       2 octets
-        
         
         print(">>>> ATT_EXCHANGE_MTU_REQ")
         template =   (('att command',       '1 octet'),
@@ -743,11 +746,15 @@ class BluetoothLEConnection:
     def do_read_by_type_request(self, low_uuid, high_uuid, uuid):
         # Specification v5.4  Vol 3 Part F 3.4.4.1 ATT_READ_BY_TYPE_REQ (p1422)
         #     [packet_type                                  1 octet]
-        
+        #     [handle (BC[2] PB[2] handle[12])              2 octets] 
+        #     [packet length                                2 octets]
+        #     [data_length                                  2 octets]        
+        #     [channel                                      2 octets]
         #     opcode                                        1 octet
         #     starting handle                               2 octets
         #     ending handle                                 2 octets
         #     attribute type (UUID)                         2 or 16 octets
+        
         print(">>>> ATT_READ_BY_TYPE_REQ")
         template =   (('att command',       '1 octet'),
                       ('low uuid',          '2 octets'),
