@@ -21,6 +21,9 @@ Key learning - you need to stop Bluez interfering, and you need to bring the hci
 
 <p align="center">
   <img src="https://github.com/paulhamsh/HCI-BLE-Python/blob/main/pictues/HCI Packet Types.jpg" >
+  <img src="https://github.com/paulhamsh/HCI-BLE-Python/blob/main/pictures/HCI ACL Packet.jpg">
+  <img src="https://github.com/paulhamsh/HCI-BLE-Python/blob/main/pictures/HCI Event Packet.jpg">
+  <img src="https://github.com/paulhamsh/HCI-BLE-Python/blob/main/pictures/HCI Command Packet.jpg">
 </p>
 
 <p align="center">
