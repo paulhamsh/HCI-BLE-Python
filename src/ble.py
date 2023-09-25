@@ -521,6 +521,19 @@ class BluetoothLEConnection:
 
     def do_set_advertising_parameter(self):
         # Specification v5.4  Vol 4 Part E 7.8.5 LE Set Advertising Parameters (p2350)
+        #     [packet_type                                  1 octet]
+        #     [opcode                                       2 octets]
+        #     [packet length                                1 octets]
+        #     advertising interval min                      2 octets
+        #     advertising interval max                      2 octets
+        #     advertising type                              1 octet
+        #     own address type                              1 octet
+        #     peer address type                             1 octet
+        #     peer address                                  6 octets
+        #     advertising channel map                       1 octet
+        #     advertising filter policy                     1 octet
+        
+        
         print("LE Set Advertising Parameters")
         template  =  (('min interval',       '2 octets'),
                       ('max interval',       '2 octets'),
@@ -544,6 +557,12 @@ class BluetoothLEConnection:
 
     def do_set_advertising_data(self, data):
         # Specification v5.4  Vol 4 Part E 7.8.7 LE Set Advertising Data (p2355) 
+        #     [packet_type                                  1 octet]
+        #     [opcode                                       2 octets]
+        #     [packet length                                1 octets]
+        #     advertising data length                       1 octet
+        #     advertising data                              31 octets
+        
         print("LE Set Advertising Data")
         pad = bytes(b'\x00' * (31 - len(data)))
         template =   (('data',               'variable len data'),
@@ -556,6 +575,12 @@ class BluetoothLEConnection:
 
     def do_set_scan_response_data(self, data):
         # Specification v5.4  Vol 4 Part E 7.8.8 LE Set Scan Response Data (p2357)    
+        #     [packet_type                                  1 octet]
+        #     [opcode                                       2 octets]
+        #     [packet length                                1 octets]
+        #     advertising data length                       1 octet
+        #     advertising data                              31 octets
+        
         print("LE Set Scan Response Data")
         pad = bytes(b'\x00' * (31 - len(data)))
         template =   (('data',               'variable len data'),
@@ -567,7 +592,23 @@ class BluetoothLEConnection:
         self.send(cmd)
   
     def do_create_connection(self, addr, addr_type):
-        # Specification v5.4  Vol 4 Part E 7.8.12 LE Create Connection (p2366) 
+        # Specification v5.4  Vol 4 Part E 7.8.12 LE Create Connection (p2366)
+        #     [packet_type                                  1 octet]
+        #     [opcode                                       2 octets]
+        #     [packet length                                1 octet]
+        #     le scan interval                              2 octets                              
+        #     le scan window                                2 octets
+        #     initiator filter policy                       1 octet
+        #     peer address type                             1 octet
+        #     peer address                                  6 octets
+        #     own address type                              1 octet
+        #     connection interval min                       2 octets
+        #     connection interval max                       2 octets
+        #     max latency                                   2 octets
+        #     supervision timeout                           2 octets
+        #     min ce length                                 2 octets
+        #     max ce length                                 2 octets
+
         print("LE Create Connection")
         template  =  (('interval',           '2 octets'),
                       ('window',             '2 octets'),
@@ -600,7 +641,13 @@ class BluetoothLEConnection:
         self.send(cmd)
         
     def do_set_scan(self, enabled=False, duplicates=False):
-        # Specification v5.4  Vol 4 Part E 7.8.11 LE Set Scan Enable (p2364) 
+        # Specification v5.4  Vol 4 Part E 7.8.11 LE Set Scan Enable (p2364)
+        #     [packet_type                                  1 octet]
+        #     [opcode                                       2 octets]
+        #     [packet length                                1 octet]
+        #     le scan enable                                1 octet
+        #     filter duplicates                             1 octet
+        
         enable = 0x01 if enabled else 0x00
         dups   = 0x01 if duplicates else 0x00
         print("LE Set Scan Enable" if enable else "LE Set Scan Disable")
@@ -614,6 +661,15 @@ class BluetoothLEConnection:
 
     def do_set_scan_parameters(self):
         # Specification v5.4  Vol 4 Part E 7.8.10 LE Set Scan Parameters (p2361) 
+        #     [packet_type                                  1 octet]
+        #     [opcode                                       2 octets]
+        #     [packet length                                1 octet]
+        #     le scan type                                  1 octet
+        #     le scan interval                              2 octets                              
+        #     le scan window                                2 octets
+        #     own address type                              1 octet
+        #     scanning filter policy                        1 octet
+        
         print("LE Set Scan Parameters")
         template =   (('type',               '1 octet'),
                       ('internal',           '2 octets'),
@@ -632,6 +688,13 @@ class BluetoothLEConnection:
         
     def do_add_device_to_accept_list(self, addr, addr_type):
         # Specification v5.4  Vol 4 Part E 7.8.16 LE Add Device To Filter Accept List (p2375)
+        #     [packet_type                                  1 octet]
+        #     [opcode                                       2 octets]
+        #     [packet length                                1 octet]
+        #     address type                                  1 octet
+        #     address                                       6 octets       
+        
+        
         print("LE Add Device To Filter Accept List")
         template =   (('address type',       '1 octet'),
                       ('address',            'addr'))
@@ -644,10 +707,15 @@ class BluetoothLEConnection:
         
     def do_read_remote_used_features(self):
         # Specification v5.4  Vol 4 Part E 7.8.21 LE Read Remote Features (p2385) 
+        #     [packet_type                                  1 octet]
+        #     [opcode                                       2 octets]
+        #     [packet length                                1 octet]
+        #     connection handle                             2 octets
+        
         print("LE Read Remote Features")
-        template =   (('channel',            '2 octets'), # must have , to make it a tuple
+        template =   (('handle',            '2 octets'), # must have , to make it a tuple
                      )
-        params =      {'channel':             self.handle}
+        params =      {'handle':             self.handle}
         packet = make_data(template, params)       
         cmd = make_cmd(0x2016, len(packet)) + packet
         self.send(cmd)
@@ -656,6 +724,12 @@ class BluetoothLEConnection:
          
     def do_set_mtu(self):
         # Specification v5.4  Vol 3 Part F 3.4.2.1 ATT_EXCHANGE_MTU_REQ (p1416) 
+        #     [packet_type                                  1 octet]
+        
+        #     opcode                                        1 octet
+        #     client receive mtu size                       2 octets
+        
+        
         print(">>>> ATT_EXCHANGE_MTU_REQ")
         template =   (('att command',       '1 octet'),
                       ('mtu size',          '2 octets'))
@@ -667,7 +741,13 @@ class BluetoothLEConnection:
        
           
     def do_read_by_type_request(self, low_uuid, high_uuid, uuid):
-        # Specification v5.4  Vol 3 Part F 3.4.4.1 ATT_READ_BY_TYPE_REQ (p1422) 
+        # Specification v5.4  Vol 3 Part F 3.4.4.1 ATT_READ_BY_TYPE_REQ (p1422)
+        #     [packet_type                                  1 octet]
+        
+        #     opcode                                        1 octet
+        #     starting handle                               2 octets
+        #     ending handle                                 2 octets
+        #     attribute type (UUID)                         2 or 16 octets
         print(">>>> ATT_READ_BY_TYPE_REQ")
         template =   (('att command',       '1 octet'),
                       ('low uuid',          '2 octets'),
@@ -680,3 +760,4 @@ class BluetoothLEConnection:
         packet = make_data(template, params)       
         cmd = make_acl(self.handle, len(packet)) + packet
         self.send(cmd)
+
