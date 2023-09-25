@@ -11,10 +11,9 @@ Scapy code:                     https://github.com/secdev/scapy/blob/master/scap
 Bumble:                         https://github.com/google/bumble
 Python-hcipy:                   https://github.com/TheBubbleworks/python-hcipy
 
-Bluetooth Specification v5.4:   https://www.bluetooth.com/specifications/specs/core-specification-5-4/    
-````
-
-
+Bluetooth Specification v5.4:   https://www.bluetooth.com/specifications/specs/core-specification-5-4/
+  
+```
 Simple use of the HCI layer to run BLE commands using python.   
 Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.   
 
