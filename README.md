@@ -17,42 +17,5 @@ Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't 
 
 Key learning - you need to stop Bluez interfering, and you need to bring the hci device down to do that - and open as a User socket.   Scapy has special code for that.
   
-|                 |                                                                          |
-| --------------- | ------------------------------------------------------------------------ |    
-| Packet type     |                                                                          |		  			
-| 8		  |                                                                          |
 
 
-
-
-| First Header  | Second Header |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
-
-
-
-```
-+-
-| Packet type
-| 8
-| Command
-| 0x01 							
-               OpCode                          Length                 DATA				
-               OGF    OCF						
-                6     10                       8					
-Async data
-0x02								
-               BC    PB     Handle             Length				
-               2     2      12                 16				
-					Length	Channel		
-					16	16
-[0x04]		
-							ATT Cmd	DATA
-							8	
-Event
-0x04								
-	Event Code	Length	DATA					
-	8	8						
-
-``` 
