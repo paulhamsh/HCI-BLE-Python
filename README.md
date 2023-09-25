@@ -20,5 +20,5 @@ Key learning - you need to stop Bluez interfering, and you need to bring the hci
 
 
 <p align="center">
-  <img src="https://github.com/paulhamsh/HCI-BLE-Python/blob/main/pictues/HCI Packet Types.jpg" width="700" title="connections">
+  <img src="[https://github.com/paulhamsh/HCI-BLE-Python/blob/main/pictues/HCI Packet Types.jpg]" width="700" title="connections">
 </p>
