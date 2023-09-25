@@ -30,7 +30,7 @@ Key learning - you need to stop Bluez interfering, and you need to bring the hci
 | Content Cell  | Content Cell  |
 | Content Cell  | Content Cell  |
 
-
+```
 
 Command
 0x01 							|	
@@ -51,4 +51,4 @@ Event
 	Event Code	Length	DATA					
 	8	8						
 
-
+``` 
