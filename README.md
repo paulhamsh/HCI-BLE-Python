@@ -6,14 +6,13 @@ Very simple, using the BLE commands directly without any interpretation or pytho
 Credits: based on work in Scapy, Bumble and python-hcipy
 
 ```
-Scapy:        https://github.com/secdev/scapy/
-Scapy code:   https://github.com/secdev/scapy/blob/master/scapy/layers/bluetooth.py
-Bumble:       https://github.com/google/bumble
-Python-hcipy: https://github.com/TheBubbleworks/python-hcipy
-```
+Scapy:                          https://github.com/secdev/scapy/
+Scapy code:                     https://github.com/secdev/scapy/blob/master/scapy/layers/bluetooth.py
+Bumble:                         https://github.com/google/bumble
+Python-hcipy:                   https://github.com/TheBubbleworks/python-hcipy
 
-Also the Bluetooth Specification v5.4 was used for this work.   https://www.bluetooth.com/specifications/specs/core-specification-5-4/    
-
+Bluetooth Specification v5.4:   https://www.bluetooth.com/specifications/specs/core-specification-5-4/    
+````
 
 
 Simple use of the HCI layer to run BLE commands using python.   
