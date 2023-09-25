@@ -33,16 +33,18 @@ Key learning - you need to stop Bluez interfering, and you need to bring the hci
 
 
 ```
-
-Command
-0x01 							
-	OpCode	Length	DATA				
-	OGF	OCF						
-	6	10	8					
++-
+| Packet type
+| 8
+| Command
+| 0x01 							
+               OpCode                          Length                 DATA				
+               OGF    OCF						
+                6     10                       8					
 Async data
 0x02								
-	BC	PB	Handle	Length				
-	2	2	12	16				
+               BC    PB     Handle             Length				
+               2     2      12                 16				
 					Length	Channel		
 					16	16
 [0x04]		
