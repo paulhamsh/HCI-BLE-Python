@@ -12,11 +12,20 @@ Bumble:       https://github.com/google/bumble
 Python-hcipy: https://github.com/TheBubbleworks/python-hcipy
 ```
 
+Also the Bluetooth Specification v5.4 was used for this work.   https://www.bluetooth.com/specifications/specs/core-specification-5-4/    
+
+
+
 Simple use of the HCI layer to run BLE commands using python.   
 Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.   
 
 Key learning - you need to stop Bluez interfering, and you need to bring the hci device down to do that - and open as a User socket.   Scapy has special code for that.
   
+**The BLE HCI interface**   
+
+The BLE HCI interface is packet based and has three relevant packet types - command, asynchronous data and event.   
+The formats are shown in the diagrams below.   
+Each packet starts with the event type as the first byte ('octet' in BLE specification documentation).   
 
 
 <p align="center">
