@@ -1,5 +1,11 @@
 from ble import *
 
+MY_SCAN_DATA = bytes.fromhex('09094d79424c45446576'  # 0x09  Complete Local Name
+                            )
+MY_ADV_DATA =  bytes.fromhex('020106' +              # 0x01 Flags
+                             '0303eeff'              # 0x03 16 bit Servuce UUID Complete
+                            )
+
 class BLE(BluetoothLEConnection):
     def test(self):
         addr = 'D8:3A:DD:41:84:47'
