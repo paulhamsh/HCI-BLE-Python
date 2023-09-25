@@ -30,10 +30,12 @@ Key learning - you need to stop Bluez interfering, and you need to bring the hci
 | Content Cell  | Content Cell  |
 | Content Cell  | Content Cell  |
 
+
+
 ```
 
 Command
-0x01 							|	
+0x01 							
 	OpCode	Length	DATA				
 	OGF	OCF						
 	6	10	8					
