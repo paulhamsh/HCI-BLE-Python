@@ -76,7 +76,7 @@ class BLE(BluetoothLEConnection):
         self.wait_listen(50)
     
 if __name__ == "__main__":
-    ble = BLE()
+    ble = BLE(1)
     ble.conn()
 
     

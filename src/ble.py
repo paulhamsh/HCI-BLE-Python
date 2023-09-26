@@ -285,7 +285,7 @@ class BluetoothLEConnection:
                      )
                       
         (di, length) = make_dict(template, data)
-        print("LE COnnection Update Complete")
+        print("LE Connection Update Complete")
         print(di)
         
         #self.write_handle(evt_le_connection_update_complete['handle'], decode('020001', 'hex'))
@@ -313,13 +313,13 @@ class BluetoothLEConnection:
                      )
         template =   (('packet type',        '1 octet'),
                       ('event code',         '1 octet'),
-                      ('prarameter length',  '1 octet'),
+                      ('parameter length',  '1 octet'),
                       ('subevent code',      '1 octet'),
                       ('reports',            'counted array', adv_templ)
                      )
                       
         (di, length) = make_dict(template, data)
-        print("LE COnnection Update Complete")
+        print("LE Connection Update Complete")
         print(di)
  
     def on_hci_meta_event(self, data):
@@ -333,7 +333,7 @@ class BluetoothLEConnection:
  
         template =   (('packet type',        '1 octet'),
                       ('event code',         '1 octet'),
-                      ('prarameter length',  '1 octet'),
+                      ('parameter length',  '1 octet'),
                       ('subevent code',      '1 octet'),
                      )
         (di, length) = make_dict(template, data)
@@ -361,7 +361,7 @@ class BluetoothLEConnection:
 
         template =   (('packet type',           '1 octet'),
                       ('event code',            '1 octet'),
-                      ('prarameter length',     '1 octet'),
+                      ('parameter length',     '1 octet'),
                       ('status',                '1 octet'),
                       ('number of hci packets', '1 octet'),
                       ('command opcde',         '2 octets')
@@ -433,7 +433,7 @@ class BluetoothLEConnection:
         #     parameters                                     n octets
         
         evt = data[1]
-        print("HCI Event Packet, evt={}".format(hex(evt)))
+        print("HCI Event Packet: Event ", hex(evt))
 
         if   evt == 0x0f:               # Command Status
             self.on_hci_event_command_status(data)
