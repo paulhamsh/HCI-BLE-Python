@@ -1,4 +1,3 @@
-
 # BLE library using HCI commands and events
 #
 # Uses Bluez on Linux
