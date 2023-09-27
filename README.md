@@ -2,9 +2,11 @@
 
 **What is this?**    
 
-Python library to access BLE functions using HCI layer   
-
-Very simple, using the BLE commands directly without any interpretation or pythonic class creation    
+A Python library to access BLE functions using the HCI layer provided by Bluez on Linux.      
+I provides access to the BLE commands from the Bluetooth specification, with no class layers or interpretation.  
+I could form the basis of a BLE library or just a BLE application.   
+Only a bit is implemented, enough to prove it works.  
+It can scan, connect, send and receive LE commands, and advertise.   
 
 **Credits**
 
@@ -30,8 +32,9 @@ Key learning - you need to stop Bluez interfering, and you need to bring the hci
 
 
 **Compatibility**
-
-
+Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.  
+On Raspberry Pi ZeroW:   TP Link: Bus 001 Device 002: ID 2357:0604 TP-Link TP-Link UB5A Adapter
+On Ubuntu Desktop PC:    Kinivq:   
 
 **The BLE HCI interface**   
 
