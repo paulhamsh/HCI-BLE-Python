@@ -1,4 +1,7 @@
 # HCI-BLE-Python
+
+**What is this?**    
+
 Python library to access BLE functions using HCI layer   
 
 Very simple, using the BLE commands directly without any interpretation or pythonic class creation    
@@ -18,11 +21,18 @@ Bluetooth Specification v5.4:   https://www.bluetooth.com/specifications/specs/c
 And a really useful article which pointed me in the right direction: 
     https://stackoverflow.com/questions/43703507/direct-control-of-hci-device-bypass-bluetooth-drivers-on-linux
 ```
+**Background**
+
 Simple use of the HCI layer to run BLE commands using python.   
 Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.   
 
 Key learning - you need to stop Bluez interfering, and you need to bring the hci device down to do that - and open as a User socket.   Scapy has special code for that.
-  
+
+
+**Compatibility**
+
+
+
 **The BLE HCI interface**   
 
 The BLE HCI interface is packet based and has three relevant packet types - command, asynchronous data and event.   
