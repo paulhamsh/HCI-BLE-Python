@@ -16,7 +16,7 @@ Python-hcipy:                   https://github.com/TheBubbleworks/python-hcipy
 Bluetooth Specification v5.4:   https://www.bluetooth.com/specifications/specs/core-specification-5-4/
 
 And a really useful article which pointed me in the right direction: 
-                                https://stackoverflow.com/questions/43703507/direct-control-of-hci-device-bypass-bluetooth-drivers-on-linux
+    https://stackoverflow.com/questions/43703507/direct-control-of-hci-device-bypass-bluetooth-drivers-on-linux
 ```
 Simple use of the HCI layer to run BLE commands using python.   
 Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.   
