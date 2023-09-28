@@ -14,6 +14,9 @@ from btsocket import *
 
 ### constants
 
+CMD_TIMEOUT = 1
+DATA_TIMEOUT = 10
+
 gap_adv_type =  ['ADV_IND', 'ADV_DIRECT_IND', 'ADV_SCAN_IND', 'ADV_NONCONN_IND', 'SCAN_RSP']
 gap_addr_type = ['PUBLIC', 'RANDOM']
 
@@ -209,7 +212,7 @@ class BluetoothLEConnection:
     def readable(self):
         return self.user_socket.readable()
 
-    def wait_listen(self, timeout=10):
+    def wait_listen(self, timeout = DATA_TIMEOUT):
         quanta = 0.1
         timer = timeout
         while timer > 0:
@@ -217,6 +220,7 @@ class BluetoothLEConnection:
             while self.readable():
                 a = self.receive()
             sleep(quanta)
+       
 
     ### Handle HCI event types
 
