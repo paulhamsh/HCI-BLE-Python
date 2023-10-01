@@ -202,10 +202,12 @@ class BluetoothLEConnection:
     ### helper functions calling BTUserSocket
 
     def send(self, data):
+        print("<<", "Data sent: ", as_hex(data))
         self.user_socket.send_raw(data)
 
     def receive(self):
         data = self.user_socket.receive_raw()
+        print(">>", "Data received: ", as_hex(data))
         self.on_data(data)
         return data
 
@@ -511,7 +513,7 @@ class BluetoothLEConnection:
         # Specification v5.4  Vol 4 Part E 5.4.2 HCI ACL Packet (p1801)
         #     packet_type                                    1 octet
 
-        print(event_text, "Data received: ", as_hex(data))
+        #print(event_text, "Data received: ", as_hex(data))
 
         packet_type = data[0]
         print("Packet type:", packet_type)
