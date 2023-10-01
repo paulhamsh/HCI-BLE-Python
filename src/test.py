@@ -49,7 +49,6 @@ class BLE(BluetoothLEConnection):
         
         self.do_create_connection(addr, addr_type)  
         self.wait_listen(5)
-        print("="*40)
         
         self.do_read_remote_used_features()
         self.wait_listen(5)
