@@ -357,7 +357,8 @@ class BluetoothLEConnection:
         elif subevent_code == 0x02:                 # LE Advertising Report
             self.on_le_advertising_report(data)
         else:
-            print("LE Meta Event: Unandled")
+            print("LE Meta Event: Unandled", subevent_code)
+        print(di)
 
     def on_hci_event_command_status(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.15 HCI_Command_Status (p2179)
@@ -432,7 +433,8 @@ class BluetoothLEConnection:
         elif le_cmd == 0x200a:                   # LE Set Advertise Enable
             print('LE Advertise Enable Set:', status)
         else:
-            print('LE Unknown Command:', status)
+            print('LE Unknown Command:', le_cmd, status)
+        #print(di)
 
     def on_hci_number_of_completed_packets(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.19 HCI Number Of Completed Packets (p2184)
@@ -523,7 +525,7 @@ class BluetoothLEConnection:
         elif packet_type == 0x02:                  # ACL data packet
             self.on_acl_data_packet(data)
         else:
-            print("Unhandled packet type")
+            print("Unhandled packet type", packet_type)
 
     ### Commands to send to HCI layer
 
