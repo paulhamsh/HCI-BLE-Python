@@ -36,7 +36,6 @@ FILTER_POLICY_NO_WHITELIST = 0x00
 
 cmd_text = "\n<< Command:"
 att_text = "\n<< LE Command: "
-event_text = "\n>> "
 
 ###
 # Data parsing routines
@@ -202,12 +201,12 @@ class BluetoothLEConnection:
     ### helper functions calling BTUserSocket
 
     def send(self, data):
-        print("<<", "Data sent: ", as_hex(data))
+        print("\n<<", "Data sent: ", as_hex(data))
         self.user_socket.send_raw(data)
 
     def receive(self):
         data = self.user_socket.receive_raw()
-        print(">>", "Data received: ", as_hex(data))
+        print("\n>>", "Data received: ", as_hex(data))
         self.on_data(data)
         return data
 
@@ -415,10 +414,19 @@ class BluetoothLEConnection:
         #     command_opcode                                 2 octets
         #     return_parameters                              n octets
 
+        template =   (('packet type',           '1 octet'),
+                      ('event code',            '1 octet'),
+                      ('parameter length',      '1 octet'),
+                      ('num command packets',   '1 octet'),
+                      ('command opcode',        '2 octets'),
+                      ('status',                '1 octet')           # assume just one status message
+                     )
+
+        (di, length) = make_dict(template, data)
         print("Event: HCI Command Complete")
 
-        le_cmd = (data[5] << 8) + data[4]
-        status = "Success" if data[6] == HCI_SUCCESS else "Failure"
+        le_cmd = di['command opcode']
+        status = "Success" if di['status'] == HCI_SUCCESS else "Failure"
 
         if   le_cmd == 0x200B:                   # LE Set Scan Paramaters
             print('LE Scan Parameters Set:',status);
@@ -433,7 +441,7 @@ class BluetoothLEConnection:
         elif le_cmd == 0x200a:                   # LE Set Advertise Enable
             print('LE Advertise Enable Set:', status)
         else:
-            print('LE Unknown Command:', le_cmd, status)
+            print('LE Unknown Command:', hex(le_cmd), status)
         #print(di)
 
     def on_hci_number_of_completed_packets(self, data):
@@ -455,7 +463,13 @@ class BluetoothLEConnection:
         #     parameter_length                               1 octet
         #     parameters                                     n octets
 
-        evt = data[1]
+        template =   (('packet type',           '1 octet'),
+                      ('event code',            '1 octet'),
+                     )
+
+        (di, length) = make_dict(template, data)
+        evt = di['event code']
+        #evt = data[1]
         print("HCI Event Packet:", hex(evt))
 
         if   evt == 0x0f:               # Command Status
@@ -469,7 +483,7 @@ class BluetoothLEConnection:
         elif evt == 0x13:               # Number of Completed Packets
             self.on_hci_number_of_completed_packets(data)
         else:
-            print("HCI Event: Unhandled")
+            print("HCI Event: Unhandled", hex(evt))
 
 
     def on_acl_data_packet(self, data):
@@ -514,8 +528,6 @@ class BluetoothLEConnection:
         # Specification v5.4  Vol 4 Part E 5.4.4 HCI Event Packet (p1804)
         # Specification v5.4  Vol 4 Part E 5.4.2 HCI ACL Packet (p1801)
         #     packet_type                                    1 octet
-
-        #print(event_text, "Data received: ", as_hex(data))
 
         packet_type = data[0]
         print("Packet type:", packet_type)
