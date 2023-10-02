@@ -43,6 +43,32 @@ The formats are shown in the diagrams below.
 Each packet starts with the event type as the first byte ('octet' in BLE specification documentation).   
 
 
+**Commands and events**
+```
+HCI Commands and events                          Specification v5.4  Vol 4 Part E 7                 (p1835)
+HCI Events                                       Specification v5.4  Vol 4 Part E 7.7               (p2156)
+LE Meta Events                                   Specification v5.4  Vol 4 Part E 7.7.65            (p2235)
+LE Commands                                      Specification v5.4  Vol 4 Part E 7.8               (p2341)
+
+ACL data packets                                 Specification v5.4  Vol 4 Part E 5.4.2             (p1801)
+```
+All commands for LE are in the 7.8 section.
+Some events are HCI events (command complete, command status) but most are LE Meta events.
+
+Check for command completion
+To check for a command completion, need to check the HCI Command Complete and/or the HCI Meta Event for that specific command.
+
+```
+HCI Command Complete
+Event code          0x0e                      Command opcode           0xabcd
+
+HCI Meta Event                 
+Event code          0x3e                      Subevent code            0xab
+```
+So – any wait for a command response should be waiting for HCI Command Complete or HCI Meta Event and a specific subevent code. It needs to be specific.
+
+
+
 <p align="center">
   <img src="https://github.com/paulhamsh/HCI-BLE-Python/blob/main/pictures/HCI Packet Types.jpg" >
   <img src="https://github.com/paulhamsh/HCI-BLE-Python/blob/main/pictures/HCI Command Packet.jpg">
