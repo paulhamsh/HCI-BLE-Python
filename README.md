@@ -33,8 +33,8 @@ Key learning - you need to stop Bluez interfering, and you need to bring the hci
 
 **Compatibility**    
 Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.    
-On Raspberry Pi ZeroW:   TP Link: Bus 001 Device 002: ID 2357:0604 TP-Link TP-Link UB5A Adapter    
-On Ubuntu Desktop PC:    Kinivq:     
+On Raspberry Pi ZeroW:   ```TP Link: Bus 001 Device 002: ID 2357:0604 TP-Link TP-Link UB5A Adapter ```   
+On Ubuntu Desktop PC:    ```Kinivq:     ```
   
 **The BLE HCI interface**   
 
