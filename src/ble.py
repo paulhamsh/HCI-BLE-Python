@@ -265,8 +265,10 @@ class BluetoothLEConnection:
                      )
 
         (di, length) = make_dict(template, data)
+        address = di["peer address"]
+        status = di["status"]
         print("LE Connection Complete")
-        print(di)
+        print("Status: {:02x} Address: {}".format(status, address))
 
 
     def on_le_connection_update_complete(self, data):
@@ -294,10 +296,12 @@ class BluetoothLEConnection:
                      )
 
         (di, length) = make_dict(template, data)
+        handle = di["connection handle"]
+        status = di["status"]
         print("LE Connection Update Complete")
-        print(di)
+        print("Handle: {:04x} Status: {02x}".format(handle, status))
 
-        #self.write_handle(evt_le_connection_update_complete['handle'], decode('020001', 'hex'))
+        # Should respond with 020001 ???
 
     def on_le_advertising_report(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65.2 LE Advertising Report (p2238)
@@ -329,7 +333,10 @@ class BluetoothLEConnection:
 
         (di, length) = make_dict(template, data)
         print("LE Advertising Report")
-        print(di)
+        for adv in di["reports"]:
+            address = adv["address"]
+            data = adv["data"]
+            print("Address: {} Data: {}".format(address, as_hex(data)))
 
     def on_hci_meta_event(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65 LE Meta event (p2235)
@@ -374,12 +381,15 @@ class BluetoothLEConnection:
                       ('parameter length',     '1 octet'),
                       ('status',                '1 octet'),
                       ('number of hci packets', '1 octet'),
-                      ('command opcde',         '2 octets')
+                      ('command opcode',        '2 octets')
                      )
 
         (di, length) = make_dict(template, data)
+        opcode = di["command opcode"]
+        status = di["status"]
 
         print("Event: HCI Command Status")
+        print("Opcode: {:02x} status: {:02x}".format(opcode, status))
         print(di)
 
     def on_hci_event_disconnect_complete(self, data):
@@ -442,7 +452,7 @@ class BluetoothLEConnection:
             print('LE Advertise Enable Set:', status)
         else:
             print('LE Unknown Command:', hex(le_cmd), status)
-        print(di)
+            print(di)
 
     def on_hci_number_of_completed_packets(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.19 HCI Number Of Completed Packets (p2184)
