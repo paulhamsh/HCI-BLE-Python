@@ -135,9 +135,6 @@ def make_data(template, dict_data):
     for x in template:
         k =x[0]
         fmt = x[1]
-        #if fmt == '1 octet array count':
-            # This will be followed by 'array'
-            #v = b''
         if fmt == 'counted array':
             templ = x[2]
             nbb=b''
@@ -153,15 +150,15 @@ def make_data(template, dict_data):
             v = from_u16(dict_data[k])
         elif fmt == 'addr':
             v = from_addr(dict_data[k])
-        elif fmt == '1 octet data len':
+        #elif fmt == '1 octet data len':
             # This will be followed by 'variable len data'
-            v = b''
+            #v = b''
         elif fmt == 'variable len data':
             v_temp = from_data(dict_data[k])
             le = from_u8(len(v_temp))
             v = le + v_temp
         elif fmt == 'data':
-            # it is ok to use data for packing - and remaining for unpacking
+            # it is ok to use 'data' for packing - and 'remaining' for unpacking
             v = from_data(dict_data[k])
         nb += v
     return nb
@@ -237,6 +234,7 @@ class BluetoothLEConnection:
 
     def on_le_connection_complete(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65.1 LE Connection Complete (p2235)
+        # Event_code = 0x3e
         # HCI_LE_Connection_Complete = 0x01
         #     [packet_type                                   1 octet]
         #     [event_code                                    1 octet]
@@ -276,6 +274,7 @@ class BluetoothLEConnection:
 
     def on_le_connection_update_complete(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65.3 LE Connection Update Complete (p2240)
+        # Event_code = 0x3e
         # HCI_LE_Connection_Update_Complete = 0x03
         #     [packet_type                                   1 octet]
         #     [event_code                                    1 octet]
@@ -308,6 +307,7 @@ class BluetoothLEConnection:
 
     def on_le_advertising_report(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65.2 LE Advertising Report (p2238)
+        # Event_code = 0x3e
         # HCI_LE_Advertising_Report = 0x02
         #     [packet_type                                   1 octet]
         #     [event_code                                    1 octet]
@@ -353,7 +353,7 @@ class BluetoothLEConnection:
 
     def on_hci_meta_event(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65 LE Meta event (p2235)
-        # event_code = 0x3e
+        # Event_code = 0x3e
         #     [packet_type                                   1 octet]
         #     [event_code                                    1 octet]
         #     [parameter_length                              1 octet]
@@ -368,7 +368,7 @@ class BluetoothLEConnection:
         (di, length) = make_dict(template, data)
 
         subevent_code = di['subevent code']
-        print("Event: LE Meta event", subevent_code)
+        print("Event: LE Meta event: ", hex(subevent_code))
         if   subevent_code == 0x01:                 # LE Connection Complete
             self.on_le_connection_complete(data)
         elif subevent_code == 0x03:                 # LE Connection Update Complete
@@ -376,7 +376,7 @@ class BluetoothLEConnection:
         elif subevent_code == 0x02:                 # LE Advertising Report
             self.on_le_advertising_report(data)
         else:
-            print("LE Meta Event: Unandled", hex(subevent_code))
+            print("LE Meta Event: Unhandled:", hex(subevent_code))
             print(di)
 
     def on_hci_event_command_status(self, data):
