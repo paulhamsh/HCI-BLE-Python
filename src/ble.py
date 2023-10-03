@@ -76,6 +76,9 @@ def as_addr (byts):
 def as_hex (byts):
     return ' '.join('{:02x}'.format (a) for a in byts)
 
+def as_printable(byts):
+    return ''.join('{:c}'.format(a) if (a >= 32 and a <= 126) else '.' for a in byts) 
+
 def make_dict(template, data):
     new_dict ={}
     position = 0
@@ -336,7 +339,17 @@ class BluetoothLEConnection:
         for adv in di["reports"]:
             address = adv["address"]
             data = adv["data"]
-            print("Address: {} Data: {}".format(address, as_hex(data)))
+            print("Address: {}".format(address))
+            i = 0
+            while i < len(data):
+                dat_len = data[i]
+                if dat_len > 0:
+                    typ = data[i+1]
+                    dat = data[i + 2 : i + dat_len + 1]
+                    print("Length: {:3} Type: {:02x}  Data: {}      {}".format(dat_len, typ, as_hex(dat), as_printable(dat)))
+                    i += dat_len
+                i += 1
+                    
 
     def on_hci_meta_event(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65 LE Meta event (p2235)
@@ -523,13 +536,19 @@ class BluetoothLEConnection:
         pb = di["pb"]
         channel = di["channel"]
         data = di["data"]
+        size = di["data size"]
+        length = di["packet length"]
+        full = length - size == 4
  
         print('ACL header: handle: {}  bc: {}  pb: {} channel: {}'.format(handle, bc, pb, channel ))
         print("ACL data:  ", as_hex(data))
 
         #### TODO - aggregate ACL packets
         # flags == ACL_START and channel == ATT_CID
-        if pb == 1:
+        if pb & 0x01 == 0:
+            print("First ACL packet") 
+            print("Length: {} Data size: {} Full packet: {}".format(length, size, full))
+        if pb & 0x01 == 1:
             print("ACL packet follow-on unhandled")
 
 
