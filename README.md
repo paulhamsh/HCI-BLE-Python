@@ -34,11 +34,13 @@ Key learning - you need to stop Bluez interfering, and you need to bring the hci
 **Compatibility**    
 Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.    
 On Raspberry Pi Zero W:   
-```TP Link: Bus 001 Device 002: ID 2357:0604 TP-Link TP-Link UB5A Adapter ```    
+```TP Link:  Bus 001 Device 002: ID 2357:0604 TP-Link TP-Link UB5A Adapter ```  
+
 On Ubuntu Desktop PC and Pi Zero W:    
-```Kinivq:  Bus 001 Device 002: ID 0a5c:21e8 Broadcom Corp. BCM20702A0 Bluetooth 4.0 ```  
+```Kinivq:   Bus 001 Device 002: ID 0a5c:21e8 Broadcom Corp. BCM20702A0 Bluetooth 4.0 ```  
+
 Doesn't work anywhere - every command responds with a failure status:    
-```Bus 001 Device 003: ID 0a5c:2101 Broadcom Corp. BCM2045 Bluetooth```
+```Trust:    Bus 001 Device 003: ID 0a5c:2101 Broadcom Corp. BCM2045 Bluetooth```
 
   
 **The BLE HCI interface**   
