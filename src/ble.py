@@ -356,8 +356,8 @@ class BluetoothLEConnection:
         elif subevent_code == 0x02:                 # LE Advertising Report
             self.on_le_advertising_report(data)
         else:
-            print("LE Meta Event: Unandled", subevent_code)
-        print(di)
+            print("LE Meta Event: Unandled", hex(subevent_code))
+            print(di)
 
     def on_hci_event_command_status(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.15 HCI_Command_Status (p2179)
@@ -442,7 +442,7 @@ class BluetoothLEConnection:
             print('LE Advertise Enable Set:', status)
         else:
             print('LE Unknown Command:', hex(le_cmd), status)
-        #print(di)
+        print(di)
 
     def on_hci_number_of_completed_packets(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.19 HCI Number Of Completed Packets (p2184)
@@ -469,7 +469,6 @@ class BluetoothLEConnection:
 
         (di, length) = make_dict(template, data)
         evt = di['event code']
-        #evt = data[1]
         print("HCI Event Packet:", hex(evt))
 
         if   evt == 0x0f:               # Command Status
@@ -509,17 +508,19 @@ class BluetoothLEConnection:
         (di, length) = make_dict(template, data)
 
         print("ACL Packet")
-        #### TODO - sort out bit maps in data
-        handle = data[1] + ((data[2] & 0x0f) << 8)
-        flags = (data[2] & 0xf0) >> 4
-        payload = data[9:]
-
-        print('ACL data');
-        print('ACL:  Handle: {}  Flags: {}  Data: {}'.format(handle, flags, payload))
-        print(di)
+        handle = di["handle"]
+        bc = di["bc"]
+        pb = di["pb"]
+        channel = di["channel"]
+        data = di["data"]
+ 
+        print('ACL header: handle: {}  bc: {}  pb: {} channel: {}'.format(handle, bc, pb, channel ))
+        print("ACL data:  ", as_hex(data))
 
         #### TODO - aggregate ACL packets
         # flags == ACL_START and channel == ATT_CID
+        if pb == 1:
+            print("ACL packet follow-on unhandled")
 
 
     # HCI packet received handler
