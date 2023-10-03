@@ -77,6 +77,7 @@ class BLE(BluetoothLEConnection):
 if __name__ == "__main__":
     ble = BLE(1)
     ble.conn()
+    #ble.adv()
 
     
     print("DONE")
