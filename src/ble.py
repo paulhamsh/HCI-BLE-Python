@@ -362,7 +362,7 @@ class BluetoothLEConnection:
 
         template =   (('packet type',        '1 octet'),
                       ('event code',         '1 octet'),
-                      ('parameter length',  '1 octet'),
+                      ('parameter length',   '1 octet'),
                       ('subevent code',      '1 octet'),
                      )
         (di, length) = make_dict(template, data)
@@ -391,7 +391,7 @@ class BluetoothLEConnection:
 
         template =   (('packet type',           '1 octet'),
                       ('event code',            '1 octet'),
-                      ('parameter length',     '1 octet'),
+                      ('parameter length',      '1 octet'),
                       ('status',                '1 octet'),
                       ('number of hci packets', '1 octet'),
                       ('command opcode',        '2 octets')
@@ -448,23 +448,23 @@ class BluetoothLEConnection:
         (di, length) = make_dict(template, data)
         print("Event: HCI Command Complete")
 
-        le_cmd = di['command opcode']
+        cmd = di['command opcode']
         status = "Success" if di['status'] == HCI_SUCCESS else "Failure"
 
-        if   le_cmd == 0x200B:                   # LE Set Scan Paramaters
+        if   cmd == 0x200B:                   # LE Set Scan Paramaters
             print('LE Scan Parameters Set:',status);
-        elif le_cmd == 0x200c:                   # LE Set Scan Enable
+        elif cmd == 0x200c:                   # LE Set Scan Enable
             print('LE Scan Enable Set:', status)
-        elif le_cmd == 0x2006:                   # LE Set Advertising Parameters
+        elif cmd == 0x2006:                   # LE Set Advertising Parameters
             print('LE Advertising Parameters Set:', status)
-        elif le_cmd == 0x2008:                   # LE Set Advertising Data
+        elif cmd == 0x2008:                   # LE Set Advertising Data
             print('LE Advertising Data Set:', status)
-        elif le_cmd == 0x2009:                   # LE Set Scan Repsonse Data
+        elif cmd == 0x2009:                   # LE Set Scan Repsonse Data
             print('LE Scan Response Data Set:', status)
-        elif le_cmd == 0x200a:                   # LE Set Advertise Enable
+        elif cmd == 0x200a:                   # LE Set Advertise Enable
             print('LE Advertise Enable Set:', status)
         else:
-            print('LE Unknown Command:', hex(le_cmd), status)
+            print('LE Unknown Command:', hex(cmd), status)
             print(di)
 
     def on_hci_number_of_completed_packets(self, data):
