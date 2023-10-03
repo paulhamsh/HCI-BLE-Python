@@ -25,17 +25,17 @@ And a really useful article which pointed me in the right direction:
 ```
 **Background**
 
-Simple use of the HCI layer to run BLE commands using python.   
-Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.   
+Simple use of the HCI layer to run BLE commands using python.      
+Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.       
 
 Key learning - you need to stop Bluez interfering, and you need to bring the hci device down to do that - and open as a User socket.   Scapy has special code for that.
 
 
-**Compatibility**
-Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.  
-On Raspberry Pi ZeroW:   TP Link: Bus 001 Device 002: ID 2357:0604 TP-Link TP-Link UB5A Adapter
-On Ubuntu Desktop PC:    Kinivq:   
-
+**Compatibility**    
+Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.    
+On Raspberry Pi ZeroW:   TP Link: Bus 001 Device 002: ID 2357:0604 TP-Link TP-Link UB5A Adapter    
+On Ubuntu Desktop PC:    Kinivq:     
+  
 **The BLE HCI interface**   
 
 The BLE HCI interface is packet based and has three relevant packet types - command, asynchronous data and event.   
