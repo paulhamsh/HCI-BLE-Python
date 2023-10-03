@@ -288,42 +288,6 @@ class BluetoothLEConnection:
         print("LE Connection Complete")
         print("Status: {:02x} Address: {}".format(status, address))
 
-
-    def on_le_connection_update_complete(self, data):
-        # Specification v5.4  Vol 4 Part E 7.7.65.3 LE Connection Update Complete (p2240)
-        # Event_code = 0x3e
-        # HCI_LE_Connection_Update_Complete = 0x03
-        #     [packet_type                                   1 octet]
-        #     [event_code                                    1 octet]
-        #     [parameter_length                              1 octet]
-        #     subevent code                                  1 octet
-        #     status                                         1 octet
-        #     connection_handle                              2 octets
-        #     connection_interval                            2 octets
-        #     peripheral_latency                             2 octets
-        #     supervision_timeout                            2 octets
-
-        template =   (('packet type',        '1 octet'),
-                      ('event code',         '1 octet'),
-                      ('parameter length',   '1 octet'),
-                      ('subevent code',      '1 octet'),
-                      ('status',             '1 octet'),
-                      ('connection handle',  '2 octets'),
-                      ('connection interval','2 octets'),
-                      ('peripheral latency', '2 octets'),
-                      ('supervision timeout','2 octets')
-                     )
-
-        (di, length) = make_dict(template, data)
-        handle = di["connection handle"]
-        status = di["status"]
-        print("LE Connection Update Complete")
-        print("Handle: {:04x} Status: {02x}".format(handle, status))
-        
-        self.handle = handle         # save this for other commands to use
-
-        # Should respond with 020001 ???
-
     def on_le_advertising_report(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65.2 LE Advertising Report (p2238)
         # Event_code = 0x3e
@@ -369,6 +333,40 @@ class BluetoothLEConnection:
                     i += dat_len
                 i += 1
                     
+    def on_le_connection_update_complete(self, data):
+        # Specification v5.4  Vol 4 Part E 7.7.65.3 LE Connection Update Complete (p2240)
+        # Event_code = 0x3e
+        # HCI_LE_Connection_Update_Complete = 0x03
+        #     [packet_type                                   1 octet]
+        #     [event_code                                    1 octet]
+        #     [parameter_length                              1 octet]
+        #     subevent code                                  1 octet
+        #     status                                         1 octet
+        #     connection_handle                              2 octets
+        #     connection_interval                            2 octets
+        #     peripheral_latency                             2 octets
+        #     supervision_timeout                            2 octets
+
+        template =   (('packet type',        '1 octet'),
+                      ('event code',         '1 octet'),
+                      ('parameter length',   '1 octet'),
+                      ('subevent code',      '1 octet'),
+                      ('status',             '1 octet'),
+                      ('connection handle',  '2 octets'),
+                      ('connection interval','2 octets'),
+                      ('peripheral latency', '2 octets'),
+                      ('supervision timeout','2 octets')
+                     )
+
+        (di, length) = make_dict(template, data)
+        handle = di["connection handle"]
+        status = di["status"]
+        print("LE Connection Update Complete")
+        print("Handle: {:04x} Status: {02x}".format(handle, status))
+        
+        self.handle = handle         # save this for other commands to use
+
+        # Should respond with 020001 ???
 
     def on_le_read_remote_features_complete(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65.4 LE Meta event (p2242)
@@ -414,32 +412,6 @@ class BluetoothLEConnection:
             print("LE Meta Event: Unhandled:", hex(subevent_code))
             print(di)
 
-    def on_hci_event_command_status(self, data):
-        # Specification v5.4  Vol 4 Part E 7.7.15 HCI_Command_Status (p2179)
-        # HCI_Command_Status = 0x0f
-        #     [packet_type                                   1 octet]
-        #     [event_code                                    1 octet]
-        #     [parameter_length                              1 octet]
-        #     status                                         1 octet
-        #     num_hci_command_packets                        1 octet
-        #     command_opcode                                 2 octets
-
-        template =   (('packet type',           '1 octet'),
-                      ('event code',            '1 octet'),
-                      ('parameter length',      '1 octet'),
-                      ('status',                '1 octet'),
-                      ('number of hci packets', '1 octet'),
-                      ('command opcode',        '2 octets')
-                     )
-
-        (di, length) = make_dict(template, data)
-        opcode = di["command opcode"]
-        status = di["status"]
-
-        print("Event: HCI Command Status")
-        print("Opcode: {:02x} status: {:02x}".format(opcode, status))
-        print(di)
-
     def on_hci_event_disconnect_complete(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.5 HCI_Disconnection_Complete (p2163)
         # HCI_Disconnection_Complete = 0x05
@@ -461,7 +433,6 @@ class BluetoothLEConnection:
         (di, length) = make_dict(template, data)
         print("Event: HCI Disconnection Complete")
         print(di)
-
 
     def on_hci_event_command_complete(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.14 HCI Command Complete (p2177)
@@ -502,6 +473,32 @@ class BluetoothLEConnection:
             print('LE Unknown Command:', hex(cmd), status)
             print(di)
 
+    def on_hci_event_command_status(self, data):
+        # Specification v5.4  Vol 4 Part E 7.7.15 HCI_Command_Status (p2179)
+        # HCI_Command_Status = 0x0f
+        #     [packet_type                                   1 octet]
+        #     [event_code                                    1 octet]
+        #     [parameter_length                              1 octet]
+        #     status                                         1 octet
+        #     num_hci_command_packets                        1 octet
+        #     command_opcode                                 2 octets
+
+        template =   (('packet type',           '1 octet'),
+                      ('event code',            '1 octet'),
+                      ('parameter length',      '1 octet'),
+                      ('status',                '1 octet'),
+                      ('number of hci packets', '1 octet'),
+                      ('command opcode',        '2 octets')
+                     )
+
+        (di, length) = make_dict(template, data)
+        opcode = di["command opcode"]
+        status = di["status"]
+
+        print("Event: HCI Command Status")
+        print("Opcode: {:02x} status: {:02x}".format(opcode, status))
+        print(di)
+
     def on_hci_number_of_completed_packets(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.19 HCI Number Of Completed Packets (p2184)
         #     [packet_type                                   1 octet]
@@ -541,7 +538,6 @@ class BluetoothLEConnection:
             self.on_hci_number_of_completed_packets(data)
         else:
             print("HCI Event: Unhandled", hex(evt))
-
 
     def on_acl_data_packet(self, data):
         # Specification v5.4  Vol 4 Part E 5.4.2 HCI ACL Packet (p1801)
@@ -612,25 +608,6 @@ class BluetoothLEConnection:
     #
     ################################################################
 
-    def do_set_advertise_enable(self, enabled):
-        # Specification v5.4  Vol 4 Part E 7.8.9 LE Set Advertising Enable (p2359)
-        # Opcode 0x200a
-        #
-        #     [packet_type                                  1 octet]
-        #     [opcode                                       2 octets]
-        #     [packet length                                1 octets]
-        #     advertising enable                            1 octet
-        #
-        # Response:
-        #     HCI Command Complete                          0x0e  0x200a
-        #     HCI LE Connection Complete                    0x3e  0x01      (in some cases)
-
-        print(cmd_text, "LE Set Advertising Enable")
-        template =   (('enable',             '1 octet'),)
-        params =      {'enable':              0x01 if enabled else 0x00}
-        packet = make_data(template, params)
-        cmd = make_cmd(0x200a, len(packet)) + packet
-        self.send(cmd)
 
     def do_set_advertising_parameter(self):
         # Specification v5.4  Vol 4 Part E 7.8.5 LE Set Advertising Parameters (p2350)
@@ -718,6 +695,83 @@ class BluetoothLEConnection:
         cmd = make_cmd(0x2009, len(packet)) + packet
         self.send(cmd)
 
+    def do_set_advertise_enable(self, enabled):
+        # Specification v5.4  Vol 4 Part E 7.8.9 LE Set Advertising Enable (p2359)
+        # Opcode 0x200a
+        #
+        #     [packet_type                                  1 octet]
+        #     [opcode                                       2 octets]
+        #     [packet length                                1 octets]
+        #     advertising enable                            1 octet
+        #
+        # Response:
+        #     HCI Command Complete                          0x0e  0x200a
+        #     HCI LE Connection Complete                    0x3e  0x01      (in some cases)
+
+        print(cmd_text, "LE Set Advertising Enable")
+        template =   (('enable',             '1 octet'),)
+        params =      {'enable':              0x01 if enabled else 0x00}
+        packet = make_data(template, params)
+        cmd = make_cmd(0x200a, len(packet)) + packet
+        self.send(cmd)
+
+    def do_set_scan_parameters(self):
+        # Specification v5.4  Vol 4 Part E 7.8.10 LE Set Scan Parameters (p2361)
+        # Opcode 0x200b
+        #
+        #     [packet_type                                  1 octet]
+        #     [opcode                                       2 octets]
+        #     [packet length                                1 octet]
+        #     le scan type                                  1 octet
+        #     le scan interval                              2 octets
+        #     le scan window                                2 octets
+        #     own address type                              1 octet
+        #     scanning filter policy                        1 octet
+        #
+        # Response:
+        #     HCI Command Complete                          0x0e  0x200b
+
+        print(cmd_text, "LE Set Scan Parameters")
+        template =   (('type',               '1 octet'),
+                      ('internal',           '2 octets'),
+                      ('window',             '2 octets'),
+                      ('own addr',           '1 octet'),
+                      ('filter',             '1 octet'))
+
+        params =      {'type':                SCAN_TYPE_ACTIVE,
+                       'internal':            0x0060,
+                       'window':              0x0060,
+                       'own addr':            LE_PUBLIC_ADDRESS,
+                       'filter':              FILTER_POLICY_NO_WHITELIST}
+        packet = make_data(template, params)
+        cmd = make_cmd(0x200b, len(packet)) + packet
+        self.send(cmd)
+
+    def do_set_scan(self, enabled=False, duplicates=False):
+        # Specification v5.4  Vol 4 Part E 7.8.11 LE Set Scan Enable (p2364)
+        # Opcode 0x200c
+        #
+        #     [packet_type                                  1 octet]
+        #     [opcode                                       2 octets]
+        #     [packet length                                1 octet]
+        #     le scan enable                                1 octet
+        #     filter duplicates                             1 octet
+        #
+        # Response:
+        #     HCI Command Complete                          0x0e  0x200c
+        #     HCI LE Advertising Report                     0x3e  0x02      (one or more)
+
+        enable = 0x01 if enabled else 0x00
+        dups   = 0x01 if duplicates else 0x00
+        print(cmd_text, "LE Set Scan Enable" if enable else "LE Set Scan Disable")
+        template =   (('enable',             '1 octet'),
+                      ('duplicates',         '1 octet'))
+        params =      {'enable':              enable,
+                       'duplicates':          dups }
+        packet = make_data(template, params)
+        cmd = make_cmd(0x200c, len(packet)) + packet
+        self.send(cmd)
+
     def do_create_connection(self, addr, addr_type):
         # Specification v5.4  Vol 4 Part E 7.8.12 LE Create Connection (p2366)
         # Opcode 0x200d
@@ -771,63 +825,6 @@ class BluetoothLEConnection:
 
         packet = make_data(template, params)
         cmd = make_cmd(0x200d, len(packet)) + packet
-        self.send(cmd)
-
-    def do_set_scan(self, enabled=False, duplicates=False):
-        # Specification v5.4  Vol 4 Part E 7.8.11 LE Set Scan Enable (p2364)
-        # Opcode 0x200c
-        #
-        #     [packet_type                                  1 octet]
-        #     [opcode                                       2 octets]
-        #     [packet length                                1 octet]
-        #     le scan enable                                1 octet
-        #     filter duplicates                             1 octet
-        #
-        # Response:
-        #     HCI Command Complete                          0x0e  0x200c
-        #     HCI LE Advertising Report                     0x3e  0x02      (one or more)
-
-        enable = 0x01 if enabled else 0x00
-        dups   = 0x01 if duplicates else 0x00
-        print(cmd_text, "LE Set Scan Enable" if enable else "LE Set Scan Disable")
-        template =   (('enable',             '1 octet'),
-                      ('duplicates',         '1 octet'))
-        params =      {'enable':              enable,
-                       'duplicates':          dups }
-        packet = make_data(template, params)
-        cmd = make_cmd(0x200c, len(packet)) + packet
-        self.send(cmd)
-
-    def do_set_scan_parameters(self):
-        # Specification v5.4  Vol 4 Part E 7.8.10 LE Set Scan Parameters (p2361)
-        # Opcode 0x200b
-        #
-        #     [packet_type                                  1 octet]
-        #     [opcode                                       2 octets]
-        #     [packet length                                1 octet]
-        #     le scan type                                  1 octet
-        #     le scan interval                              2 octets
-        #     le scan window                                2 octets
-        #     own address type                              1 octet
-        #     scanning filter policy                        1 octet
-        #
-        # Response:
-        #     HCI Command Complete                          0x0e  0x200b
-
-        print(cmd_text, "LE Set Scan Parameters")
-        template =   (('type',               '1 octet'),
-                      ('internal',           '2 octets'),
-                      ('window',             '2 octets'),
-                      ('own addr',           '1 octet'),
-                      ('filter',             '1 octet'))
-
-        params =      {'type':                SCAN_TYPE_ACTIVE,
-                       'internal':            0x0060,
-                       'window':              0x0060,
-                       'own addr':            LE_PUBLIC_ADDRESS,
-                       'filter':              FILTER_POLICY_NO_WHITELIST}
-        packet = make_data(template, params)
-        cmd = make_cmd(0x200b, len(packet)) + packet
         self.send(cmd)
 
     def do_add_device_to_accept_list(self, addr, addr_type):
