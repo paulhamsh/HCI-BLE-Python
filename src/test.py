@@ -33,23 +33,15 @@ class BLE(BluetoothLEConnection):
         addr_type = LE_PUBLIC_ADDRESS
  
         self.do_set_scan(False, False)
-        self.wait_listen(1)
-
         self.do_add_device_to_accept_list(addr, addr_type)
-        self.wait_listen(1)
-
         self.do_set_scan_parameters()
-        self.wait_listen(1)
-
         self.do_set_scan(True, True)
         self.wait_listen(10)
 
         self.do_set_scan(False, False)
-        self.wait_listen(5)
-        
         self.do_create_connection(addr, addr_type)  
         self.wait_listen(5)
-        
+
         self.do_read_remote_used_features()
         self.wait_listen(5)
 

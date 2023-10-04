@@ -14,7 +14,7 @@ from btsocket import *
 
 ### constants
 
-CMD_TIMEOUT = 1
+COMMAND_TIMEOUT = 1
 DATA_TIMEOUT = 10
 
 gap_adv_type =  ['ADV_IND', 'ADV_DIRECT_IND', 'ADV_SCAN_IND', 'ADV_NONCONN_IND', 'SCAN_RSP']
@@ -204,6 +204,8 @@ class BluetoothLEConnection:
     def __init__(self, dev_id=0):
         self.handle = 64
         self.user_socket = BTUserSocket(dev_id)
+        self.command_complete = None
+        self.command_status = None
 
     def __del__(self):
         self.user_socket.close()
@@ -232,7 +234,20 @@ class BluetoothLEConnection:
             while self.readable():
                 a = self.receive()
             sleep(quanta)
-       
+
+    def wait_complete(self, command, timeout = DATA_TIMEOUT):
+        quanta = 0.1
+        timer = timeout
+        while timer > 0 and self.command_complete != command:
+            timer -= quanta
+            while self.readable():
+                a = self.receive()
+            sleep(quanta)
+
+    def send_command(self, command, packet):
+        cmd = make_cmd(command, len(packet)) + packet
+        self.send(cmd)
+        self.wait_complete(command, COMMAND_TIMEOUT)
 
     ################################################################
     #
@@ -456,6 +471,8 @@ class BluetoothLEConnection:
 
         cmd = di['command opcode']
         status = "Success" if di['status'] == HCI_SUCCESS else "Failure"
+        self.command_complete = cmd
+        self.command_status = status
 
         if   cmd == 0x200B:                   # LE Set Scan Paramaters
             print('LE Scan Parameters Set:',status);
@@ -593,6 +610,9 @@ class BluetoothLEConnection:
         packet_type = data[0]
         print("Packet type:", packet_type)
 
+        self.command_complete = None               # set to None and changed by Command Complete event
+        self.command_status = None
+
         if   packet_type == 0x04:                  # event packet
             self.on_hci_event_packet(data)
         elif packet_type == 0x02:                  # ACL data packet
@@ -646,8 +666,9 @@ class BluetoothLEConnection:
                        'adv channel map':     0x07,
                        'adv filter policy':   0x00}
         packet = make_data(template, params)
-        cmd = make_cmd(0x2006, len(packet)) + packet
-        self.send(cmd)
+        #cmd = make_cmd(0x2006, len(packet)) + packet
+        #self.send(cmd)
+        self.send_command(0x2006, packet)
 
     def do_set_advertising_data(self, data):
         # Specification v5.4  Vol 4 Part E 7.8.7 LE Set Advertising Data (p2355)
@@ -669,8 +690,9 @@ class BluetoothLEConnection:
         params =      {'data':                data,
                        'pad':                 pad}
         packet = make_data(template, params)
-        cmd = make_cmd(0x2008, len(packet)) + packet
-        self.send(cmd)
+        #cmd = make_cmd(0x2008, len(packet)) + packet
+        #self.send(cmd)
+        self.send_command(0x2008, packet)
 
     def do_set_scan_response_data(self, data):
         # Specification v5.4  Vol 4 Part E 7.8.8 LE Set Scan Response Data (p2357)
@@ -692,8 +714,9 @@ class BluetoothLEConnection:
         params =      {'data':                data,
                        'pad':                 pad}
         packet = make_data(template, params)
-        cmd = make_cmd(0x2009, len(packet)) + packet
-        self.send(cmd)
+        #cmd = make_cmd(0x2009, len(packet)) + packet
+        #self.send(cmd)
+        self.send_command(0x2009, packet)
 
     def do_set_advertise_enable(self, enabled):
         # Specification v5.4  Vol 4 Part E 7.8.9 LE Set Advertising Enable (p2359)
@@ -712,8 +735,9 @@ class BluetoothLEConnection:
         template =   (('enable',             '1 octet'),)
         params =      {'enable':              0x01 if enabled else 0x00}
         packet = make_data(template, params)
-        cmd = make_cmd(0x200a, len(packet)) + packet
-        self.send(cmd)
+        #cmd = make_cmd(0x200a, len(packet)) + packet
+        #self.send(cmd)
+        self.send_command(0x200a, packet)
 
     def do_set_scan_parameters(self):
         # Specification v5.4  Vol 4 Part E 7.8.10 LE Set Scan Parameters (p2361)
@@ -744,8 +768,9 @@ class BluetoothLEConnection:
                        'own addr':            LE_PUBLIC_ADDRESS,
                        'filter':              FILTER_POLICY_NO_WHITELIST}
         packet = make_data(template, params)
-        cmd = make_cmd(0x200b, len(packet)) + packet
-        self.send(cmd)
+        #cmd = make_cmd(0x200b, len(packet)) + packet
+        #self.send(cmd)
+        self.send_command(0x200b, packet)
 
     def do_set_scan(self, enabled=False, duplicates=False):
         # Specification v5.4  Vol 4 Part E 7.8.11 LE Set Scan Enable (p2364)
@@ -769,8 +794,9 @@ class BluetoothLEConnection:
         params =      {'enable':              enable,
                        'duplicates':          dups }
         packet = make_data(template, params)
-        cmd = make_cmd(0x200c, len(packet)) + packet
-        self.send(cmd)
+        #cmd = make_cmd(0x200c, len(packet)) + packet
+        #self.send(cmd)
+        self.send_command(0x200c, packet)
 
     def do_create_connection(self, addr, addr_type):
         # Specification v5.4  Vol 4 Part E 7.8.12 LE Create Connection (p2366)
@@ -824,8 +850,9 @@ class BluetoothLEConnection:
                        'max ce length':       0x0000}
 
         packet = make_data(template, params)
-        cmd = make_cmd(0x200d, len(packet)) + packet
-        self.send(cmd)
+        #cmd = make_cmd(0x200d, len(packet)) + packet
+        #self.send(cmd)
+        self.send_command(0x200d, packet)
 
     def do_add_device_to_accept_list(self, addr, addr_type):
         # Specification v5.4  Vol 4 Part E 7.8.16 LE Add Device To Filter Accept List (p2375)
@@ -848,8 +875,9 @@ class BluetoothLEConnection:
         params =      {'address type':        addr_type,
                        'address':             addr }
         packet = make_data(template, params)
-        cmd = make_cmd(0x2011, len(packet)) + packet
-        self.send(cmd)
+        #cmd = make_cmd(0x2011, len(packet)) + packet
+        #self.send(cmd)
+        self.send_command(0x2011, packet)
 
     def do_read_remote_used_features(self):
         # Specification v5.4  Vol 4 Part E 7.8.21 LE Read Remote Features (p2385)
@@ -869,8 +897,9 @@ class BluetoothLEConnection:
                      )
         params =      {'handle':             self.handle}
         packet = make_data(template, params)
-        cmd = make_cmd(0x2016, len(packet)) + packet
-        self.send(cmd)
+        #cmd = make_cmd(0x2016, len(packet)) + packet
+        #self.send(cmd)
+        self.send_command(0x2016, packet)
 
     # ACL commands
 
