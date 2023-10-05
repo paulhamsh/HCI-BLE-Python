@@ -36,19 +36,19 @@ class BLE(BluetoothLEConnection):
         self.do_add_device_to_accept_list(addr, addr_type)
         self.do_set_scan_parameters()
         self.do_set_scan(True, True)
-        self.wait_listen(10)
+        self.wait_listen(5)
 
         self.do_set_scan(False, False)
         self.do_create_connection(addr, addr_type)  
-        self.wait_listen(5)
+        self.wait_listen(2)
 
         self.do_read_remote_used_features()
-        self.wait_listen(5)
+        self.wait_listen(2)
 
         self.do_att_exchange_mtu_req()
-        self.wait_listen(5)
+        self.wait_listen(2)
         self.do_att_read_by_type_req(0x0001, 0xffff, 0x2800)
-        self.wait_listen(5)
+        self.wait_listen(2)
         self.do_att_find_information_req(0x0001, 0x1000)
         self.wait_listen(30)
 

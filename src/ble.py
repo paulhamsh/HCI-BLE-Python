@@ -204,6 +204,13 @@ class BluetoothLEConnection:
     def __init__(self, dev_id=0):
         self.handle = 64
         self.user_socket = BTUserSocket(dev_id)
+
+        # ACL packet being constructed
+        self.acl_packet = None
+        self.acl_length = 0
+        self.acl_total_length = 0
+
+        # Last command complete information
         self.command_complete = None
         self.command_status = None
 
@@ -571,7 +578,9 @@ class BluetoothLEConnection:
                         ('pb',     12, 2),
                         ('handle', 0, 12))),
                       ('packet length',         '2 octets'),
-                      ('data size',             '2 octets'),
+                      ('rest',                  'remaining'))
+
+        hdr_templ =  (('data size',             '2 octets'),
                       ('channel',               '2 octets'),
                       ('data',                  'remaining'),
                      )
@@ -582,23 +591,35 @@ class BluetoothLEConnection:
         handle = di["handle"]
         bc = di["bc"]
         pb = di["pb"]
-        channel = di["channel"]
-        data = di["data"]
-        size = di["data size"]
         length = di["packet length"]
-        full = length - size == 4
- 
-        print('ACL header: handle: {}  bc: {}  pb: {} channel: {}'.format(handle, bc, pb, channel ))
-        print("ACL data:  ", as_hex(data))
+        
+        print('ACL header: handle: {}  bc: {}  pb: {}'.format(handle, bc, pb))
+        # flags == ACL_START and channel == ATT_CID ??
 
-        #### TODO - aggregate ACL packets
-        # flags == ACL_START and channel == ATT_CID
         if pb & 0x01 == 0:
-            print("First ACL packet") 
-            print("Length: {} Data size: {} Full packet: {}".format(length, size, full))
-        if pb & 0x01 == 1:
-            print("ACL packet follow-on unhandled")
+            (hdr_di, hdr_len) = make_dict(hdr_templ, di["rest"])
 
+            channel = hdr_di["channel"]
+            data = hdr_di["data"]
+            size = hdr_di["data size"]
+            full_packet = length - size == 4
+
+            print("Channel: {} Length: {} Data size: {} Full packet? {}".format(channel, length, size, full_packet))
+            print("ACL data:  ", as_hex(data))
+
+            if not full_packet:  # This is not a full packet, so start to store the acl_packet
+                self.acl_total_length = size
+                self.acl_packet = data
+
+        if pb & 0x01 == 1:
+            print("ACL Packet Continuation")
+            data = di["rest"]
+            self.acl_packet += data
+            print("ACL data:  ", as_hex(data))
+            if len(self.acl_packet) == self.acl_total_length:
+                print("ACL Packet Final")
+                print("Full ACL data: ", as_hex(self.acl_packet))
+            
 
     # HCI packet received handler
 
