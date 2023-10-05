@@ -903,7 +903,7 @@ class BluetoothLEConnection:
 
     # ACL commands
 
-    def do_set_mtu(self):
+    def do_att_exchange_mtu_req(self):
         # Specification v5.4  Vol 3 Part F 3.4.2.1 ATT_EXCHANGE_MTU_REQ (p1416)
         # ATT Opcode 0x02
         #     [packet_type                                  1 octet]
@@ -924,7 +924,32 @@ class BluetoothLEConnection:
         self.send(cmd)
 
 
-    def do_read_by_type_request(self, low_uuid, high_uuid, uuid):
+    def do_att_find_information_req(self, start, end):
+        # Specification v5.4  Vol 3 Part F 3.4.3.1 ATT_FIND_INFORMATION_REQ (p1418)
+        # ATT Opcode 0x04
+        #
+        #     [packet_type                                  1 octet]
+        #     [handle (BC[2] PB[2] handle[12])              2 octets]
+        #     [packet length                                2 octets]
+        #     [data_length                                  2 octets]
+        #     [channel                                      2 octets]
+        #     opcode                                        1 octet
+        #     starting handle                               2 octets
+        #     ending handle                                 2 octets
+
+        print(att_text, "ATT FIND INFORMATION REQ")
+        template =   (('att command',       '1 octet'),
+                      ('starting handle',   '2 octets'),
+                      ('ending handle',     '2 octets'))
+        params =      {'att command':        0x04,
+                       'starting handle':    start,
+                       'ending handle':      end }
+        packet = make_data(template, params)
+        cmd = make_acl(self.handle, len(packet)) + packet
+        self.send(cmd)
+
+
+    def do_att_read_by_type_req(self, low_uuid, high_uuid, uuid):
         # Specification v5.4  Vol 3 Part F 3.4.4.1 ATT_READ_BY_TYPE_REQ (p1422)
         # ATT Opcode 0x08
         #

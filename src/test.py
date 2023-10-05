@@ -18,8 +18,8 @@ class BLE(BluetoothLEConnection):
         self.do_set_scan(False, False)
         self.do_create_connection(addr, addr_type)  
         self.do_read_remote_used_features()
-        self.do_read_by_type_request(0x0000, 0xffff, 0x2800)
-        self.do_set_mtu()
+        self.do_att_read_by_type_req(0x0000, 0xffff, 0x2800)
+        self.do_att_exchange_mtu_req()
         scan_rsp_data = MY_SCAN_DATA
         adv_data = MY_ADV_DATA
         self.do_set_advertise_enable(False)
@@ -45,9 +45,9 @@ class BLE(BluetoothLEConnection):
         self.do_read_remote_used_features()
         self.wait_listen(5)
 
-        self.do_set_mtu()
+        self.do_att_exchange_mtu_req()
         self.wait_listen(5)
-        self.do_read_by_type_request(0x0001, 0xffff, 0x2800)
+        self.do_att_read_by_type_req(0x0000, 0xffff, 0x2800)
         self.wait_listen(30)
 
         
