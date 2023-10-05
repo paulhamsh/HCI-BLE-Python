@@ -49,7 +49,14 @@ class BLE(BluetoothLEConnection):
         self.wait_listen(2)
         self.do_att_read_by_type_req(0x0001, 0xffff, 0x2800)
         self.wait_listen(2)
-        self.do_att_find_information_req(0x0001, 0x1000)
+        self.do_att_find_information_req(0x0001, 0xffff)
+        self.wait_listen(2)
+        self.do_att_find_information_req(0x0009, 0xffff)
+        self.wait_listen(2)
+        self.do_att_find_information_req(0x000a, 0xffff)
+        self.wait_listen(2)
+        self.do_att_find_information_req(0x000b, 0xffff)
+        self.wait_listen(2)
         self.wait_listen(30)
 
         
