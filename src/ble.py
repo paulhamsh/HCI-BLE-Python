@@ -57,6 +57,15 @@ def to_addr(byts, ind):
 def to_data(byts, ind, length):
     return byts[ind: ind + length]
 
+def to_data_rest(byts, ind):
+    return byts[ind:]
+
+def to_bits_u16 (byts, ind, start, num_bits):
+    val = to_u16(byts, ind)
+    val = val >> start
+    mask = (1 << num_bits) - 1
+    return val & mask
+
 def reverse_addr(byts) :
     return bytes(reversed(byts))
 
@@ -300,27 +309,14 @@ class BluetoothLEConnection:
         #     peripheral_latency                             2 octets
         #     supervision_timeout                            2 octets
         #     central_clock_accuracy                         1 octet
-
-        template =   (('packet type',        '1 octet'),
-                      ('event code',         '1 octet'),
-                      ('parameter length',   '1 octet'),
-                      ('subevent code',      '1 octet'),
-                      ('status',             '1 octet'),
-                      ('connection handle',  '2 octets'),
-                      ('role',               '1 octet'),
-                      ('peer_address_type',  '1 octet'),
-                      ('peer address',       'addr'),
-                      ('connection interval','2 octets'),
-                      ('peripheral latency', '2 octets'),
-                      ('supervision timeout','2 octets'),
-                      ('clock accuracy',     '1 octet')
-                     )
-
-        (di, length) = make_dict(template, data)
-        address = di["peer address"]
-        status = di["status"]
+      
+        status = to_u8(data, 4)
+        handle = to_u16(data, 5)
+        address = to_addr(data, 9)
+        
+        self.handle = handle         # save this for other commands to use
         print("LE Connection Complete")
-        print("Status: {:02x} Address: {}".format(status, address))
+        print("Status: {:02x} Address: {}".format(status, as_hex(address)))
 
     def on_le_advertising_report(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65.2 LE Advertising Report (p2238)
@@ -337,36 +333,33 @@ class BluetoothLEConnection:
         #         data_length[i]                             1 octet
         #         data[i]                                    data_length octets
         #         rssi[i]                                    1 octet
+        
+        num_reports = to_u8       (data, 4)
+        reports =     to_data_rest(data, 5)
+        data = data[0:4] + from_u8(2) + reports + reports
 
-        adv_templ =  (('event type',         '1 octet'),
-                      ('address type',       '1 octet'),
-                      ('address',            'addr'),
-                      ('data',               'variable len data'),
-                      ('rssi',               '1 octet')
-                     )
-        template =   (('packet type',        '1 octet'),
-                      ('event code',         '1 octet'),
-                      ('parameter length',  '1 octet'),
-                      ('subevent code',      '1 octet'),
-                      ('reports',            'counted array', adv_templ)
-                     )
-
-        (di, length) = make_dict(template, data)
-        print("LE Advertising Report")
-        for adv in di["reports"]:
-            address = adv["address"]
-            data = adv["data"]
-            print("Address: {}".format(address))
+        num_reports = to_u8       (data, 4)
+        reports =     to_data_rest(data, 5)
+        
+        for rep in range(0, num_reports):
+            address =     to_addr (reports, 2)
+            data_len =    to_u8   (reports, 8)
+            report_data = to_data (reports, 9, data_len)
+            rssi =        to_u8   (reports, 9 + data_len)
+            
+            print("Address: {}      RSSI: {}".format(as_addr(address), rssi))
             i = 0
-            while i < len(data):
-                dat_len = data[i]
-                if dat_len > 0:
-                    typ = data[i+1]
-                    dat = data[i + 2 : i + dat_len + 1]
-                    print("Length: {:3} Type: {:02x}  Data: {}      {}".format(dat_len, typ, as_hex(dat), as_printable(dat)))
-                    i += dat_len
+            while i < data_len:
+                entry_len = to_u8(report_data, i) 
+                if entry_len > 0:
+                    typ = to_u8  (report_data, i+1)
+                    dat = to_data(report_data, i+2, entry_len-1)
+                    print("Length: {:3} Type: {:02x}  Data: {}      {}".format(entry_len, typ, as_hex(dat), as_printable(dat)))
+                    i += entry_len
                 i += 1
-                    
+            if rep < num_reports-1:   # don't get 'rest' on last iteration as at end of data
+                reports = to_data_rest(reports, data_len+10)
+                  
     def on_le_connection_update_complete(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65.3 LE Connection Update Complete (p2240)
         # Event_code = 0x3e
@@ -381,24 +374,16 @@ class BluetoothLEConnection:
         #     peripheral_latency                             2 octets
         #     supervision_timeout                            2 octets
 
-        template =   (('packet type',        '1 octet'),
-                      ('event code',         '1 octet'),
-                      ('parameter length',   '1 octet'),
-                      ('subevent code',      '1 octet'),
-                      ('status',             '1 octet'),
-                      ('connection handle',  '2 octets'),
-                      ('connection interval','2 octets'),
-                      ('peripheral latency', '2 octets'),
-                      ('supervision timeout','2 octets')
-                     )
-
-        (di, length) = make_dict(template, data)
-        handle = di["connection handle"]
-        status = di["status"]
+        status =   to_u8(data, 4)
+        handle =   to_u16(data, 5)
+        interval = to_u16(data, 7)
+        latency = to_u16(data, 9)
+        timeout =  to_u16(data, 11)
+        
         print("LE Connection Update Complete")
         print("Handle: {:04x} Status: {02x}".format(handle, status))
         
-        self.handle = handle         # save this for other commands to use
+        #self.handle = handle         # save this for other commands to use
 
         # Should respond with 020001 ???
 
@@ -414,7 +399,12 @@ class BluetoothLEConnection:
         #     connection_handle                              2 octets
         #     le features                                    8 octets      # need to update templates for this!!
 
-        print("READ REMOTE FEATURES COMPLETE")
+        print("Read Remote Features Complete")
+        
+        handle = to_u16(data, 5)
+        features = to_data_rest(data, 7)
+        
+        print("Handle: {} Features {}".format(handle, as_hex(features)))
 
     def on_hci_meta_event(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65 LE Meta event (p2235)
@@ -425,14 +415,7 @@ class BluetoothLEConnection:
         #     subevent_code                                  1 octet
         #     data                                           n octets
 
-        template =   (('packet type',        '1 octet'),
-                      ('event code',         '1 octet'),
-                      ('parameter length',   '1 octet'),
-                      ('subevent code',      '1 octet'),
-                     )
-        (di, length) = make_dict(template, data)
-
-        subevent_code = di['subevent code']
+        subevent_code = to_u8(data, 3)
         print("Event: LE Meta event: ", hex(subevent_code))
         if   subevent_code == 0x01:                 # LE Connection Complete
             self.on_le_connection_complete(data)
@@ -444,7 +427,6 @@ class BluetoothLEConnection:
             self.on_le_read_remote_features_complete(data)
         else:
             print("LE Meta Event: Unhandled:", hex(subevent_code))
-            print(di)
 
     def on_hci_event_disconnect_complete(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.5 HCI_Disconnection_Complete (p2163)
@@ -456,17 +438,12 @@ class BluetoothLEConnection:
         #     connection_handle                              2 octets
         #     reason                                         1 octet
 
-        template =   (('packet type',           '1 octet'),
-                      ('event code',            '1 octet'),
-                      ('parameter length',      '1 octet'),
-                      ('status',                '1 octet'),
-                      ('connection handler',    '2 octets'),
-                      ('reason',                '1 octet')
-                     )
 
-        (di, length) = make_dict(template, data)
         print("Event: HCI Disconnection Complete")
-        print(di)
+
+        status = to_u8  (data, 3)
+        handle = to_u16 (data, 4)
+        reason = to_u8  (data, 6)
 
     def on_hci_event_command_complete(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.14 HCI Command Complete (p2177)
@@ -476,38 +453,32 @@ class BluetoothLEConnection:
         #     num_hci_command_packets                        1 octet
         #     command_opcode                                 2 octets
         #     return_parameters                              n octets
+        
+        # First return_parameters field is usually
+        #     status                                         1 octet
 
-        template =   (('packet type',           '1 octet'),
-                      ('event code',            '1 octet'),
-                      ('parameter length',      '1 octet'),
-                      ('num command packets',   '1 octet'),
-                      ('command opcode',        '2 octets'),
-                      ('status',                '1 octet')           # assume just one status message
-                     )
-
-        (di, length) = make_dict(template, data)
         print("Event: HCI Command Complete")
-
-        cmd = di['command opcode']
-        status = "Success" if di['status'] == HCI_SUCCESS else "Failure"
+        cmd =    to_u16 (data, 4)
+        status = to_u8  (data, 6)
+        
+        status_text = "Success" if status == HCI_SUCCESS else "Failure"
         self.command_complete = cmd
-        self.command_status = status
+        self.command_status =   status
 
-        if   cmd == 0x200B:                   # LE Set Scan Paramaters
-            print('LE Scan Parameters Set:',status);
-        elif cmd == 0x200c:                   # LE Set Scan Enable
-            print('LE Scan Enable Set:', status)
-        elif cmd == 0x2006:                   # LE Set Advertising Parameters
-            print('LE Advertising Parameters Set:', status)
-        elif cmd == 0x2008:                   # LE Set Advertising Data
-            print('LE Advertising Data Set:', status)
-        elif cmd == 0x2009:                   # LE Set Scan Repsonse Data
-            print('LE Scan Response Data Set:', status)
-        elif cmd == 0x200a:                   # LE Set Advertise Enable
-            print('LE Advertise Enable Set:', status)
+        if   cmd == 0x200B:                                       # LE Set Scan Paramaters
+            print('LE Scan Parameters Set:',status_text);
+        elif cmd == 0x200c:                                       # LE Set Scan Enable
+            print('LE Scan Enable Set:', status_text)
+        elif cmd == 0x2006:                                       # LE Set Advertising Parameters
+            print('LE Advertising Parameters Set:', status_text)
+        elif cmd == 0x2008:                                       # LE Set Advertising Data
+            print('LE Advertising Data Set:', status_text)
+        elif cmd == 0x2009:                                       # LE Set Scan Repsonse Data
+            print('LE Scan Response Data Set:', status_text)
+        elif cmd == 0x200a:                                       # LE Set Advertise Enable
+            print('LE Advertise Enable Set:', status_text)
         else:
-            print('LE Unknown Command:', hex(cmd), status)
-            print(di)
+            print('LE Unknown Command:', hex(cmd), status_text)
 
     def on_hci_event_command_status(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.15 HCI_Command_Status (p2179)
@@ -519,21 +490,11 @@ class BluetoothLEConnection:
         #     num_hci_command_packets                        1 octet
         #     command_opcode                                 2 octets
 
-        template =   (('packet type',           '1 octet'),
-                      ('event code',            '1 octet'),
-                      ('parameter length',      '1 octet'),
-                      ('status',                '1 octet'),
-                      ('number of hci packets', '1 octet'),
-                      ('command opcode',        '2 octets')
-                     )
-
-        (di, length) = make_dict(template, data)
-        opcode = di["command opcode"]
-        status = di["status"]
-
         print("Event: HCI Command Status")
+        status = to_u8  (data, 3)
+        opcode = to_u16 (data, 5)
+
         print("Opcode: {:02x} status: {:02x}".format(opcode, status))
-        print(di)
 
     def on_hci_number_of_completed_packets(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.19 HCI Number Of Completed Packets (p2184)
@@ -545,7 +506,6 @@ class BluetoothLEConnection:
         #     num completed packets[i]                       2n octets
 
         print("Event: HCI Number Of Completed Packets")
-        print("!! DOING NOTHING")
 
     def on_hci_event_packet(self, data):
         # Specification v5.4  Vol 4 Part E 5.4.4 HCI Event Packet (p1804)
@@ -554,26 +514,21 @@ class BluetoothLEConnection:
         #     parameter_length                               1 octet
         #     parameters                                     n octets
 
-        template =   (('packet type',           '1 octet'),
-                      ('event code',            '1 octet'),
-                     )
+        event = to_u8(data, 1)         
+        print("HCI Event Packet:", hex(event))
 
-        (di, length) = make_dict(template, data)
-        evt = di['event code']
-        print("HCI Event Packet:", hex(evt))
-
-        if   evt == 0x0f:               # Command Status
+        if   event == 0x0f:                                   # Command Status
             self.on_hci_event_command_status(data)
-        elif evt == 0x05:               # Disconnection Complete
+        elif event == 0x05:                                   # Disconnection Complete
             self.on_hci_event_disconnect_complete(data)
-        elif evt == 0x3e:               # LE Meta Event
+        elif event == 0x3e:                                   # LE Meta Event
             self.on_hci_meta_event(data)
-        elif evt == 0x0e:               # Command complete
+        elif event == 0x0e:                                   # Command complete
             self.on_hci_event_command_complete(data)
-        elif evt == 0x13:               # Number of Completed Packets
+        elif event == 0x13:                                   # Number of Completed Packets
             self.on_hci_number_of_completed_packets(data)
         else:
-            print("HCI Event: Unhandled", hex(evt))
+            print("HCI Event: Unhandled", hex(event))
 
     def on_acl_data_packet(self, data):
         # Specification v5.4  Vol 4 Part E 5.4.2 HCI ACL Packet (p1801)
@@ -584,49 +539,34 @@ class BluetoothLEConnection:
         #     channel                                       2 octets
         #     data                                          n octets
 
-        template =   (('packet type',           '1 octet'),
-                      ('handle field',          'bitfield 16',
-                       (('bc',     14, 2),
-                        ('pb',     12, 2),
-                        ('handle', 0, 12))),
-                      ('packet length',         '2 octets'),
-                      ('rest',                  'remaining'))
-
-        hdr_templ =  (('data size',             '2 octets'),
-                      ('channel',               '2 octets'),
-                      ('data',                  'remaining'),
-                     )
-
-        (di, length) = make_dict(template, data)
-
         print("ACL Packet")
-        handle = di["handle"]
-        bc = di["bc"]
-        pb = di["pb"]
-        length = di["packet length"]
+
+        handle = to_bits_u16(data, 1, 0, 12)
+        pb =     to_bits_u16(data, 1, 12, 2)
+        bc =     to_bits_u16(data, 1, 14, 2)
+        length = to_u16(data, 3)  #di["packet length"]
+ 
         full_packet = False
         print('ACL header: handle: {}  bc: {}  pb: {}'.format(handle, bc, pb))
 
         if pb & 0x01 == 0:
-            (hdr_di, hdr_len) = make_dict(hdr_templ, di["rest"])
-
-            channel = hdr_di["channel"]
-            data = hdr_di["data"]
-            size = hdr_di["data size"]
+            size =     to_u16(data, 5)
+            channel =  to_u16(data, 7)
+            acl_data = to_data_rest(data, 9)
             full_packet = length - size == 4
 
             print("Channel: {} Length: {} Data size: {} Full packet? {}".format(channel, length, size, full_packet))
-            print("ACL data:  ", as_hex(data))
+            print("ACL data:  ", as_hex(acl_data))
 
             if not full_packet:                                  # This is not a full packet, so start to store the acl_packet
                 self.acl_total_length = size
-                self.acl_packet = data
+                self.acl_packet =       acl_data
 
         if pb & 0x01 == 1:
             print("ACL Packet Continuation")
-            data = di["rest"]
-            self.acl_packet += data
-            print("ACL data:  ", as_hex(data))
+            acl_data = to_data_rest(data, 5)
+            self.acl_packet += acl_data
+            print("ACL data:  ", as_hex(acl_data))
             if len(self.acl_packet) == self.acl_total_length:    # This was the last continuation packet
                 full_packet = True
                 print("ACL Packet Final")
@@ -644,7 +584,7 @@ class BluetoothLEConnection:
         #
         #     packet_type                                    1 octet
 
-        packet_type = data[0]
+        packet_type = to_u8(data, 0)
         print("Packet type:", packet_type)
 
         self.command_complete = None               # set to None and changed by Command Complete event
@@ -699,7 +639,6 @@ class BluetoothLEConnection:
         packet += from_addr (peer_addr)
         packet += from_u8   (adv_channel_map)
         packet += from_u8   (adv_filter_policy)
-    
         self.send_command(0x2006, packet)
 
     def do_set_advertising_data(self, data):
@@ -716,13 +655,11 @@ class BluetoothLEConnection:
         #     HCI Command Complete                          0x0e  0x2008
 
         print(cmd_text, "LE Set Advertising Data")
-        pad = bytes(b'\x00' * (31 - len(data)))
 
+        pad = bytes(b'\x00' * (31-len(data)))
         packet = from_u8 (len(data))
-        packet +=        data
-        packet +=        pad
-        
-        #print("+++++++++++++++++" if packet == packet1 else "------------------")       
+        packet +=         data
+        packet +=         pad
         self.send_command(0x2008, packet)
 
     def do_set_scan_response_data(self, data):
@@ -741,10 +678,9 @@ class BluetoothLEConnection:
         print(cmd_text, "LE Set Scan Response Data")
         pad = bytes(b'\x00' * (31 - len(data)))
 
-        packet = from_u8 (len(data))
-        packet +=        data
-        packet +=        pad
-
+        packet =  from_u8 (len(data))
+        packet +=         data
+        packet +=         pad
         self.send_command(0x2009, packet)
 
     def do_set_advertise_enable(self, enabled):
@@ -789,7 +725,6 @@ class BluetoothLEConnection:
         packet += from_u16 (scan_window)
         packet += from_u8  (own_addr_type)
         packet += from_u8  (scan_filter_policy)
-
         self.send_command(0x200b, packet)
 
     def do_set_scan(self, enabled=False, duplicates=False):
@@ -813,7 +748,6 @@ class BluetoothLEConnection:
         
         packet =  from_u8(0x01 if enabled else 0x00)
         packet += from_u8(0x01 if duplicates else 0x00)        
-        
         self.send_command(0x200c, packet)
 
     def do_create_connection(self, addr, addr_type, interval=0x0060, window=0x0060, initiator_filter=0x00,
@@ -856,8 +790,6 @@ class BluetoothLEConnection:
         packet += from_u16 (supervision_timeout)
         packet += from_u16 (min_ce_length)
         packet += from_u16 (max_ce_length)
-        
-
         self.send_command(0x200d, packet)
         
 
@@ -941,7 +873,6 @@ class BluetoothLEConnection:
         packet =  from_u8  (0x04)          # ATT opcode ATT_FIND_INFORMATION_REQ
         packet += from_u16 (start_handle)
         packet += from_u16 (end_handle)
-        
 
         cmd = make_acl(self.handle, len(packet)) + packet
         self.send(cmd)
@@ -961,7 +892,8 @@ class BluetoothLEConnection:
         #     ending handle                                 2 octets
         #     attribute type (UUID)                         2 or 16 octets
 
-        print(att_text, "ATT READ BY TYPE REQ")        
+        print(att_text, "ATT READ BY TYPE REQ")
+        
         packet =  from_u8  (0x08)               # ATT opcode ATT_READ_BY_TYPE_REQ
         packet += from_u16 (start_handle)
         packet += from_u16 (end_handle)
