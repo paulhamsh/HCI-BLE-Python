@@ -17,8 +17,8 @@ from btsocket import *
 COMMAND_TIMEOUT = 1
 DATA_TIMEOUT = 10
 
-gap_adv_type =  ['ADV_IND', 'ADV_DIRECT_IND', 'ADV_SCAN_IND', 'ADV_NONCONN_IND', 'SCAN_RSP']
-gap_addr_type = ['PUBLIC', 'RANDOM']
+#gap_adv_type =  ['ADV_IND', 'ADV_DIRECT_IND', 'ADV_SCAN_IND', 'ADV_NONCONN_IND', 'SCAN_RSP']
+#gap_addr_type = ['PUBLIC', 'RANDOM']
 
 HCI_SUCCESS = 0x00
 
@@ -37,11 +37,25 @@ FILTER_POLICY_NO_WHITELIST = 0x00
 cmd_text = "\n<< Command:"
 att_text = "\n<< LE Command: "
 
+
+################################################################
+#
+# Formatting routines
+#
+################################################################
+def as_addr (byts):
+    return ':'.join('{:02x}'.format (a) for a in byts)
+
+def as_hex (byts):
+    return ' '.join('{:02x}'.format (a) for a in byts)
+
+def as_printable(byts):
+    return ''.join('{:c}'.format(a) if (a >= 32 and a <= 126) else '.' for a in byts) 
+
+
 ################################################################
 #
 # Data parsing routines
-#
-# Parse data templates into dictionary and from dictionary
 #
 ################################################################
 
@@ -52,7 +66,7 @@ def to_u8 (byts, ind):
     return byts[ind]
 
 def to_addr(byts, ind):
-    return bytes(reversed(byts [ind: ind+6]))
+    return as_addr(bytes(reversed(byts [ind: ind+6])))
 
 def to_data(byts, ind, length):
     return byts[ind: ind + length]
@@ -66,8 +80,8 @@ def to_bits_u16 (byts, ind, start, num_bits):
     mask = (1 << num_bits) - 1
     return val & mask
 
-def reverse_addr(byts) :
-    return bytes(reversed(byts))
+#def reverse_addr(byts) :
+#    return bytes(reversed(byts))
 
 def from_u8(val):
     return bytes ([val])
@@ -83,133 +97,25 @@ def from_addr(val):
 def from_data(val):
     return bytes(val)
 
-def as_addr (byts):
-    return ':'.join('{:02x}'.format (a) for a in byts)
 
-def as_hex (byts):
-    return ' '.join('{:02x}'.format (a) for a in byts)
-
-def as_printable(byts):
-    return ''.join('{:c}'.format(a) if (a >= 32 and a <= 126) else '.' for a in byts) 
-
-def make_dict(template, data):
-    new_dict ={}
-    position = 0
-    for x in template:
-        k =x[0]
-        fmt = x[1]
-
-        if fmt == 'counted array':
-            templ = x[2]
-            arr = []
-            data_count = to_u8(data, position)
-            position += 1
-            for n in range(0, data_count):
-                (dat, leng) = make_dict(templ, data[position:])
-                position += leng
-                arr.append(dat)
-            val = arr
-        elif fmt == 'bitfield 16':
-            templ = x[2]
-            val = to_u16(data, position)
-            position += 2
-            for b in templ:
-                key = b[0]
-                pos = b[1]
-                num_bits = b[2]
-                v = val >> pos
-                mask = (1 << num_bits) - 1
-                new_dict[key] = v & mask
-        elif fmt == '1 octet':
-            val = to_u8(data, position)
-            position += 1
-        elif fmt == '2 octets':
-            val = to_u16(data, position)
-            position += 2
-        elif fmt == 'addr':
-            val = as_addr(to_addr(data, position))
-            position += 6
-        elif fmt == 'variable len data':
-            data_len = to_u8(data, position)
-            position += 1
-            val = to_data(data, position, data_len)
-            position += data_len
-        elif fmt == 'remaining':
-            data_len = len(data) - position
-            val = to_data(data, position, data_len)
-            position += data_len
-        new_dict[k] = val
-    return new_dict, position
-
-
-def make_data(template, dict_data):
-    nb =b''
-    i = 0
-    for x in template:
-        k =x[0]
-        fmt = x[1]
-        if fmt == 'counted array':
-            templ = x[2]
-            nbb=b''
-            count = 0
-            for n in dict_data[k]:
-                nbb += make_data(templ, n)
-                count += 1
-            le = from_u8(count)
-            v = le + nbb
-        elif fmt == '1 octet':
-            v = from_u8(dict_data[k])
-        elif fmt == '2 octets':
-            v = from_u16(dict_data[k])
-        elif fmt == 'addr':
-            v = from_addr(dict_data[k])
-        #elif fmt == '1 octet data len':
-            # This will be followed by 'variable len data'
-            #v = b''
-        elif fmt == 'variable len data':
-            v_temp = from_data(dict_data[k])
-            le = from_u8(len(v_temp))
-            v = le + v_temp
-        elif fmt == 'data':
-            # it is ok to use 'data' for packing - and 'remaining' for unpacking
-            v = from_data(dict_data[k])
-        nb += v
-    return nb
+################################################################
+#
+# Make the ACL and HCI command headers
+#
+################################################################
 
 def make_acl(handle, length):
-    #template = (('hci command prefix',   '1 octet'),
-    #            ('hci handle',           '2 octets'),
-    #            ('hci length',           '2 octets'),
-    #            ('l2cap length',         '2 octets'),
-    #            ('channel',              '2 octets'))
-    #params =    {'hci command prefix':    0x02,
-    #             'hci handle':            handle,
-    #             'hci length':            length + 4,
-    #             'l2cap length':          length,
-    #             'channel':               ATT_CID}
-    #header1 = make_data(template, params)
-    
     header =  from_u8 (0x02)       # hci command prefix for ACL
     header += from_u16(handle)     # hci handle
     header += from_u16(length + 4) # hci packet length
     header += from_u16(length)     # l2cap length
     header += from_u16(ATT_CID)    # channel for ATT - 4 for BLE
-
     return header
 
 def make_cmd(cmd, length):
-    #template  =  (('hci command prefix', '1 octet'),
-    #              ('hci command',        '2 octets'),
-    #              ('hci length',         '1 octet'))
-    #params =      {'hci command prefix':  0x01,
-    #               'hci command':         cmd,
-    #               'hci length':          length}
-    #header1 = make_data(template, params)
-    
-    header =  from_u8 (0x01)   # hci command prefix
-    header += from_u16(cmd)    # hci command
-    header += from_u8 (length) # hci packet length
-
+    header =  from_u8 (0x01)       # hci command prefix
+    header += from_u16(cmd)        # hci command
+    header += from_u8 (length)     # hci packet length
     return header
 
 ################################################################
@@ -334,20 +240,22 @@ class BluetoothLEConnection:
         #         data[i]                                    data_length octets
         #         rssi[i]                                    1 octet
         
-        num_reports = to_u8       (data, 4)
-        reports =     to_data_rest(data, 5)
-        data = data[0:4] + from_u8(2) + reports + reports
+        # These lines double the report to test for num_reports = 2
+        #num_reports = to_u8       (data, 4)
+        #reports =     to_data_rest(data, 5)
+        #data = data[0:4] + from_u8(2) + reports + reports
 
         num_reports = to_u8       (data, 4)
-        reports =     to_data_rest(data, 5)
+        reports =     to_data_rest(data, 5)                  # the actual 'reports'
         
+        report_offset = 0                                    # start of this entry in 'reports'
         for rep in range(0, num_reports):
-            address =     to_addr (reports, 2)
-            data_len =    to_u8   (reports, 8)
-            report_data = to_data (reports, 9, data_len)
-            rssi =        to_u8   (reports, 9 + data_len)
+            address =     to_addr (reports, report_offset+2)
+            data_len =    to_u8   (reports, report_offset+8)
+            report_data = to_data (reports, report_offset+9, data_len)
+            rssi =        to_u8   (reports, report_offset+9 + data_len)
             
-            print("Address: {}      RSSI: {}".format(as_addr(address), rssi))
+            print("Address: {}      RSSI: {}".format(address, rssi))
             i = 0
             while i < data_len:
                 entry_len = to_u8(report_data, i) 
@@ -357,8 +265,7 @@ class BluetoothLEConnection:
                     print("Length: {:3} Type: {:02x}  Data: {}      {}".format(entry_len, typ, as_hex(dat), as_printable(dat)))
                     i += entry_len
                 i += 1
-            if rep < num_reports-1:   # don't get 'rest' on last iteration as at end of data
-                reports = to_data_rest(reports, data_len+10)
+            report_offset += data_len+10                     # move on to next entry
                   
     def on_le_connection_update_complete(self, data):
         # Specification v5.4  Vol 4 Part E 7.7.65.3 LE Connection Update Complete (p2240)
@@ -610,7 +517,6 @@ class BluetoothLEConnection:
                                       peer_addr='11:22:33:44:55:66', peer_addr_type=0x00,
                                       min_interval=0x00a0, max_interval=0x00a0, adv_channel_map=0x07,
                                       adv_filter_policy=0x00):
-
         # Specification v5.4  Vol 4 Part E 7.8.5 LE Set Advertising Parameters (p2350)
         # Opcode 0x2006
         #
