@@ -810,3 +810,24 @@ class BluetoothLEConnection:
         self.send(cmd)
 
 
+    def do_att_read_req(self, handle):
+        # Specification v5.4  Vol 3 Part F 3.4.4.1 ATT_READ_REQ (p1425)
+        # ATT Opcode 0x0a
+        #
+        #     [packet_type                                  1 octet]
+        #     [handle (BC[2] PB[2] handle[12])              2 octets]
+        #     [packet length                                2 octets]
+        #     [data_length                                  2 octets]
+        #     [channel                                      2 octets]
+        #     opcode                                        1 octet
+        #     handle                                        2 octets
+
+        print(att_text, "ATT READ REQ")
+        
+        packet =  from_u8  (0x0a)               # ATT opcode ATT_READ_REQ
+        packet += from_u16 (handle)
+               
+        cmd = make_acl(self.handle, len(packet)) + packet
+        self.send(cmd)
+
+

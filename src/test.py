@@ -58,6 +58,7 @@ class BLE(BluetoothLEConnection):
         self.wait_listen(2)
         self.do_att_find_information_req(0x000b, 0xffff)
         self.wait_listen(2)
+        self.do_att_read_req(0x0009)
         self.wait_listen(30)
 
         
