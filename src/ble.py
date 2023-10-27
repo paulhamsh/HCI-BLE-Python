@@ -10,7 +10,8 @@
 #
 
 from time import sleep
-from btsocket import *
+from hcisocket import *
+#from hciuart import *
 
 ### constants
 
@@ -130,7 +131,7 @@ class BluetoothLEConnection:
 
     def __init__(self, dev_id=0):
         self.handle = 64
-        self.user_socket = BTUserSocket(dev_id)
+        self.user_socket = HCITransport(dev_id)
 
         # ACL packet being constructed
         self.acl_packet = None
