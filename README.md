@@ -2,32 +2,38 @@
 
 **What is this?**    
 
-A Python library to access BLE functions using the HCI layer provided by Bluez on Linux.      
-I provides access to the BLE commands from the Bluetooth specification, with no class layers or interpretation.  
-I could form the basis of a BLE library or just a BLE application.   
+A Python library to access BLE functions using the HCI layer.   
+Currently works with the HCI laver provided by Bluez on Linux and UART HCI on the Nano Connect RP2040.   
+
+It provides access to the BLE commands from the Bluetooth specification, with no class layers or interpretation.  
+It could form the basis of a BLE library or just a BLE application.   
 Only a bit is implemented, enough to prove it works.  
 It can scan, connect, send and receive LE commands, and advertise.   
 
+BLE is a simple part of the Bluetooth specification, and doesn't require much code.   
+
+
 **Credits**
 
-This is derived from work in Scapy, Bumble and python-hcipy, all of which have been incredibly useful in creating this.
+This is derived from work in Scapy, Bumble and python-hcipy, all of which have been incredibly useful in creating this.   
+I only discovered Arduino BLE later in the project, and it is a good simple implementation of BLE - like this project, but in C++.   
 
 ```
 Scapy:                          https://github.com/secdev/scapy/
 Scapy code:                     https://github.com/secdev/scapy/blob/master/scapy/layers/bluetooth.py
 Bumble:                         https://github.com/google/bumble
 Python-hcipy:                   https://github.com/TheBubbleworks/python-hcipy
+ArduinoBLE:                     https://github.com/arduino-libraries/ArduinoBLE   
 
 Bluetooth Specification v5.4:   https://www.bluetooth.com/specifications/specs/core-specification-5-4/
 
 And a really useful article which pointed me in the right direction: 
   https://stackoverflow.com/questions/43703507/direct-control-of-hci-device-bypass-bluetooth-drivers-on-linux
 ```
+
 **Background**
 
 Simple use of the HCI layer to run BLE commands using python.      
-Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.       
-
 Key learning - you need to stop Bluez interfering, and you need to bring the hci device down to do that - and open as a User socket.   Scapy has special code for that.
 
 
