@@ -10,8 +10,8 @@
 #
 
 from time import sleep
-from hcisocket import *
-#from hciuart import *
+from hci_socket import *
+#from hci_uart import *
 
 ### constants
 
