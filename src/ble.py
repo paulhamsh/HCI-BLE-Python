@@ -93,7 +93,7 @@ def from_u16(val):
     return bytes([v1]) + bytes([v2])
 
 def from_addr(val):
-    return bytes(reversed(bytes.fromhex(val.replace(':', ' '))))
+    return bytes(reversed(bytes.fromhex(val.replace(':', ''))))
 
 def from_data(val):
     return bytes(val)
