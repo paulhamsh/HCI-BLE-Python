@@ -36,7 +36,7 @@ cd esp-idf
 ./install.sh esp32
 source export.sh
 
-#Micropython installation
+# Micropython installation
 cd ~
 git clone https://github.com/micropython/micropython
 cd micropython
@@ -53,6 +53,7 @@ make
 make erase
 make deploy
 
+# Close USB access in Windows so can see ESP32
 Windows:
 usbipd wsl detach --busid <busid>
 ```
