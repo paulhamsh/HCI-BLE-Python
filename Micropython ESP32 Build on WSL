@@ -3,17 +3,16 @@ https://github.com/micropython/micropython/blob/master/ports/esp32/README.md
 
 usbipd-win instructions:
 https://devblogs.microsoft.com/commandline/connecting-usb-devices-to-wsl/
-
+```
+# Windows USB access for WSL 
+# Install MSI for USBIPD frrom  https://github.com/dorssel/usbipd-win/releases
 
 Windows: 
 cd c:\"Program Files\usbpid-win"
 usbipd wsl list
 usbipd wsl attach --busid <busid>
 
-Windows:
-#wsl --export Ubuntu ubuntu.tar.gz
-#wsl --unregister Ubuntu
-
+# Install Ubuntu in WSL
 
 wsl --install Ubuntu
 [provide username and password]
@@ -56,3 +55,4 @@ make deploy
 
 Windows:
 usbipd wsl detach --busid <busid>
+```
