@@ -1,9 +1,9 @@
-#References   
+# References   
 Micropython instructions: https://github.com/micropython/micropython/blob/master/ports/esp32/README.md
 usbipd-win instructions: https://devblogs.microsoft.com/commandline/connecting-usb-devices-to-wsl/
 
 
-#Instructions   
+# Instructions   
 Install MSI for USBIPD (provide access to ESP32 over USB into WSL) from  https://github.com/dorssel/usbipd-win/releases
 
 ***Windows***
