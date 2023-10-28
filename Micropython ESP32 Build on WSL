@@ -8,7 +8,7 @@ https://devblogs.microsoft.com/commandline/connecting-usb-devices-to-wsl/
 # Install MSI for USBIPD frrom  https://github.com/dorssel/usbipd-win/releases
 
 Windows: 
-cd c:\"Program Files\usbpid-win"
+cd "c:\Program Files\usbpid-win"
 usbipd wsl list
 usbipd wsl attach --busid <busid>
 
