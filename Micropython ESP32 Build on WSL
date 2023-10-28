@@ -7,7 +7,8 @@ https://devblogs.microsoft.com/commandline/connecting-usb-devices-to-wsl/
 # Windows USB access for WSL 
 # Install MSI for USBIPD frrom  https://github.com/dorssel/usbipd-win/releases
 
-Windows: 
+*Windows*
+```
 cd "c:\Program Files\usbpid-win"
 usbipd wsl list
 usbipd wsl attach --busid <busid>
@@ -16,6 +17,7 @@ usbipd wsl attach --busid <busid>
 
 wsl --install Ubuntu
 [provide username and password]
+```
 
 # Then you are in WSL
 
