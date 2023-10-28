@@ -3,11 +3,11 @@ https://github.com/micropython/micropython/blob/master/ports/esp32/README.md
 
 usbipd-win instructions:
 https://devblogs.microsoft.com/commandline/connecting-usb-devices-to-wsl/
-```
+
 # Windows USB access for WSL 
 # Install MSI for USBIPD frrom  https://github.com/dorssel/usbipd-win/releases
 
-*Windows*
+***Windows***
 ```
 cd "c:\Program Files\usbpid-win"
 usbipd wsl list
@@ -19,6 +19,8 @@ wsl --install Ubuntu
 [provide username and password]
 ```
 
+***WSL***
+```
 # Then you are in WSL
 
 sudo bash
@@ -54,7 +56,10 @@ make
 # Install to ESP32
 make erase
 make deploy
+```
 
+***Windows***
+```
 # Close USB access in Windows so can see ESP32
 Windows:
 usbipd wsl detach --busid <busid>
