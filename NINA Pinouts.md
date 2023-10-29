@@ -28,12 +28,12 @@ SPIWIFI         SPI1
 
 
 NINA            RP2040
-RSTN NINA       RESET_N       3
+RSTN NINA       RESET_N      3
 
-UART TX         1             8
-UART RX         3             9
-UART CTS        12            10
-UART RTS        33            11
+UART TX         1            8
+UART RX         3            9
+UART CTS        12           10
+UART RTS        33           11
 
 SPI_CS          5
 SPI_ACK         33
