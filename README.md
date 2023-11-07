@@ -16,7 +16,7 @@ It can scan, connect, send and receive LE commands, and advertise.
 
 BLE is a simple part of the Bluetooth specification, and doesn't require much code.   
 
-The Micropython versions require a special build of Micropython with the specific C code to access the HCI layers.   
+The ESP and Pico W Micropython versions require a special build of Micropython with the specific C code to access the HCI layers.   
 
 | HCI layer | Module     | Class        |   
 |-----------|------------|--------------|   
@@ -48,7 +48,7 @@ And a really useful article which pointed me in the right direction:
 ## Background
 
 Simple use of the HCI layer to run BLE commands using python.      
-Key learning - you need to stop Bluez interfering, and you need to bring the hci device down to do that - and open as a User socket.   Scapy has special code for that.
+Key learning for Bluez - you need to stop Bluez interfering, and you need to bring the hci device down to do that - and open as a User socket.   Scapy has special code for that.
 
 
 ## Compatibility  
@@ -65,7 +65,11 @@ Doesn't work anywhere - every command responds with a failure status:
 
 Also tested on microcontrollers:
 
-```Nano Connect RP2040:  UART HCI to NINA W102 on-board BT chip```   
+```
+Nano Connect RP2040:  UART HCI to NINA W102 on-board BT chip
+ESP32:                VHCI
+Pico W:               CYW4349 SDIO interface
+```   
   
 ## The BLE HCI interface
 
