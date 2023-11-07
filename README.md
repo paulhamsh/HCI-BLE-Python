@@ -84,7 +84,13 @@ Event code          0x3e                      Subevent code            0xab
 ```
 So – any wait for a command response should be waiting for HCI Command Complete or HCI Meta Event and a specific subevent code. It needs to be specific.
 
-## H4 Packet Formats
+## HCI Packet Formats
+
+The HCI interface uses different formats depending on the type of interface - UART, HCI, SDIO.   
+USB and UART generally use the H4 format.   
+The CYW43439 chip on the Pico W uses the SDIO format (as configured for the Pico).   
+
+## H4
 
 <p align="center">
   <img src="https://github.com/paulhamsh/HCI-BLE-Python/blob/main/pictures/HCI Packet Types.jpg" >
