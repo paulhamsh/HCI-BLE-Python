@@ -52,6 +52,9 @@ Key learning for Bluez - you need to stop Bluez interfering, and you need to bri
 
 
 ## Compatibility  
+
+# Bluez (Ubuntu and Raspbian)
+
 Tested on Ubuntu using Bluez and a KinivQ USB dongle. Some other dongles didn't work.    
 
 On Ubuntu Desktop PC and Pi Zero W:    
