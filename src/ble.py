@@ -131,7 +131,7 @@ class BluetoothLEConnection:
 
     def __init__(self, dev_id=0):
         self.handle = 64
-        self.user_socket = HCITransport(dev_id)
+        self.user_socket = HCI(dev_id)
 
         # ACL packet being constructed
         self.acl_packet = None
