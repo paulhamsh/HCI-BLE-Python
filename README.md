@@ -24,7 +24,7 @@ The ESP and Pico W Micropython versions require a special build of Micropython w
 | UART      | hci_uart   | HCITransport | HCI-BLE-Python    |
 | ESP VHCI  | HCI_ESP32  | HCI          | HCI-ESP32         |
 | Pico W    | HCI_PicoW  | HCI          | HCI-PicoW         |
-|-----------|------------|--------------|-------------------|  
+
 
 
 ## Credits
