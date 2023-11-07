@@ -26,7 +26,10 @@ The HCI.py is different for each layer.
 
 | HCI layer | file | Module |   
 |-|-|-|   
-| Bluez | hci_socket.py |   
+| Bluez | hci_socket.py | HCITransport | 
+| UART  | hci_uart.py | HCITransport |
+| ESP VHCI | HCI_ESP32 | HCI |
+| Pico W | HCI_PicoW | HCI |
 |-|-|-|   
 
 
