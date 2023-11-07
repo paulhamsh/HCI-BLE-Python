@@ -22,9 +22,11 @@ There are two modules required:
 - BLE.py
 
 The HCI.py is different for each layer.
-|-+-|
+
+| HCI layer | Module |
+|-|-|
 | Bluez | HCI |
-|-+-|
+|-|-|
 
 
 ## Credits
