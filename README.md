@@ -84,7 +84,7 @@ Event code          0x3e                      Subevent code            0xab
 ```
 So – any wait for a command response should be waiting for HCI Command Complete or HCI Meta Event and a specific subevent code. It needs to be specific.
 
-
+** H4 Packet Formats **
 
 <p align="center">
   <img src="https://github.com/paulhamsh/HCI-BLE-Python/blob/main/pictures/HCI Packet Types.jpg" >
