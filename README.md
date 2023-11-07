@@ -16,6 +16,16 @@ It can scan, connect, send and receive LE commands, and advertise.
 
 BLE is a simple part of the Bluetooth specification, and doesn't require much code.   
 
+The Micropython versions require a special build of Micropython with the specific C code to access the HCI layers.   
+There are two modules required:
+- HCI.py
+- BLE.py
+
+The HCI.py is different for each layer.
+|-+-|
+| Bluez | HCI |
+|-+-|
+
 
 ## Credits
 
