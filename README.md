@@ -5,9 +5,9 @@
 A Python library to access BLE functions using the HCI layer.   
 Currently works with the HCI lavers:
 - Bluez on Linux (inbuilt WIFI and some USB dongles)   
-- UART HCI on the Nano Connect RP2040   
-- VHCI on ESP32 (with Micropython)   
-- CYW43439 HCI on Pico W (with Micropython)      
+- UART HCI on the Nano Connect RP2040 (with native Micropython)
+- VHCI on ESP32 (with special Micropython)   
+- CYW43439 HCI on Pico W (with special Micropython)      
 
 It provides access to the BLE commands from the Bluetooth specification, with minimal class layers or interpretation.  
 It could form the basis of a BLE library or just a BLE application.   
@@ -17,12 +17,6 @@ It can scan, connect, send and receive LE commands, and advertise.
 BLE is a simple part of the Bluetooth specification, and doesn't require much code.   
 
 The Micropython versions require a special build of Micropython with the specific C code to access the HCI layers.   
-There are two modules required:
-- HCI.py
-- BLE.py
-
-The HCI.py is different for each layer.   
-
 
 | HCI layer | Module     | Class        |   
 |-----------|------------|--------------|   
