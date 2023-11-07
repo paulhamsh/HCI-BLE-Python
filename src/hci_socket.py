@@ -51,7 +51,7 @@ def hci_down(device):
     ioctl(sock.fileno(), HCIDEVDOWN, device)
     sock.close()
   
-class HCITransport():
+class HCI():
     def __init__(self, adapter_index):
   
         self._closed = False      
