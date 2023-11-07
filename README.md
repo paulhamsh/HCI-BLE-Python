@@ -3,7 +3,11 @@
 ## What is this? 
 
 A Python library to access BLE functions using the HCI layer.   
-Currently works with the HCI laver provided by Bluez on Linux and UART HCI on the Nano Connect RP2040.   
+Currently works with the HCI lavers:
+- Bluez on Linux (inbuilt WIFI and some USB dongles)   
+- UART HCI on the Nano Connect RP2040   
+- VHCI on ESP32 (with Micropython)   
+- CYW43439 HCI on Pico W (with Micropython)      
 
 It provides access to the BLE commands from the Bluetooth specification, with minimal class layers or interpretation.  
 It could form the basis of a BLE library or just a BLE application.   
