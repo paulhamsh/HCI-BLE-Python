@@ -24,10 +24,10 @@ There are two modules required:
 The HCI.py is different for each layer.   
 
 
-| HCI layer | Module |   
-|-|-|   
-| Bluez | HCI |   
-|-|-|   
+| HCI layer | file | Module |   
+|-|-|-|   
+| Bluez | hci_socket.py |   
+|-|-|-|   
 
 
 ## Credits
