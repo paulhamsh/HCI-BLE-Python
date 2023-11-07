@@ -1,7 +1,7 @@
 from machine import UART, Pin
 from time import sleep, ticks_ms, ticks_add, ticks_diff
 
-class HCITransport():
+class HCI():
     def __init__(self, adapter_index):
         self.init_nina()
         self.init_uart()
