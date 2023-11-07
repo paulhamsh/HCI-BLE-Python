@@ -24,13 +24,13 @@ There are two modules required:
 The HCI.py is different for each layer.   
 
 
-| HCI layer | file | Module |   
-|-|-|-|   
-| Bluez | hci_socket.py | HCITransport | 
-| UART  | hci_uart.py | HCITransport |
-| ESP VHCI | HCI_ESP32 | HCI |
-| Pico W | HCI_PicoW | HCI |
-|-|-|-|   
+| HCI layer | Module     | Class        |   
+|-----------|------------|--------------|   
+| Bluez     | hci_socket | HCITransport | 
+| UART      | hci_uart   | HCITransport |
+| ESP VHCI  | HCI_ESP32  | HCI          |
+| Pico W    | HCI_PicoW  | HCI          |
+|-----------|------------|--------------|   
 
 
 ## Credits
