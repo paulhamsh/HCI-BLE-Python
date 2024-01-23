@@ -68,7 +68,7 @@ class BLE(BluetoothLEConnection):
 
         self.do_set_advertise_enable(False)
         self.wait_listen(1)
-        self.do_set_advertising_parameter()
+        self.do_set_advertising_parameters()
         self.wait_listen(1)
         self.do_set_advertising_data(adv_data)
         self.wait_listen(1)
