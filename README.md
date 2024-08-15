@@ -20,11 +20,20 @@ The ESP and Pico W Micropython versions require a special build of Micropython w
 
  HCI layer | Module     | Class        | Repo                        | Link
 -----------|------------|--------------|-----------------------------|---------------------------------------------------------
- Bluez     | hci_socket | HCITransport | HCI-BLE-Python              | https://github.com/paulhamsh/HCI-BLE-Python
- UART      | hci_uart   | HCITransport | HCI-BLE-Python              | https://github.com/paulhamsh/HCI-BLE-Python
+ Bluez     | hci_socket | HCI          | HCI-BLE-Python              | https://github.com/paulhamsh/HCI-BLE-Python
+ UART      | hci_uart   | HCI          | HCI-BLE-Python              | https://github.com/paulhamsh/HCI-BLE-Python
  ESP VHCI  | HCI_ESP32  | HCI          | HCI-ESP32                   | https://github.com/paulhamsh/HCI-ESP32
  Pico W    | HCI_PicoW  | HCI          | HCI-PicoW                   | https://github.com/paulhamsh/HCI-PicoW
  Pico W    | CYW        | CYW          | CYW43439-Micropython-Driver | https://github.com/paulhamsh/CYW43439-Micropython-Driver     
+
+Also in the repos are the following (named here for completeness)    
+
+ Layer     | Module        | Class        | Repo                        | Link                                                     | Description
+-----------|---------------|--------------|-----------------------------|----------------------------------------------------------|--------------------------------------------------
+ SPI       | HCI_SPI_PicoW | HCI_SPI()    | HCI-SPI-PicoW               | https://github.com/paulhamsh/HCI-SPI-PicoW               | Micropython module to access the Pico W SPI layer
+ SPI       |               |              | HCI-PicoW-C-RawSPI          | https://github.com/paulhamsh/HCI-PicoW-C-RawSPI          | C program to access the Pico W SPI layer
+ HCI       |               |              | HCI-PicoW-C                 | https://github.com/paulhamsh/HCI-PicoW-C                 | C program to access the Pico W HCI layer 
+ 
 
 
 ## Credits
