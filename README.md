@@ -2,7 +2,8 @@
 
 ## What is this? 
 
-A Python / Micropython library to access BLE functions using the HCI layer.   
+A Python / Micropython library to access BLE functions using the HCI layer, a partial implementation of a BLE stack.   
+   
 Currently works with the HCI layers:
 - Bluez on Linux (in-built WIFI and some USB dongles)   
 - UART HCI on the Nano Connect RP2040 (with native Micropython)
