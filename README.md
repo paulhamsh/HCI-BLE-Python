@@ -4,10 +4,10 @@
 
 A Python library to access BLE functions using the HCI layer.   
 Currently works with the HCI lavers:
-- Bluez on Linux (inbuilt WIFI and some USB dongles)   
+- Bluez on Linux (in-built WIFI and some USB dongles)   
 - UART HCI on the Nano Connect RP2040 (with native Micropython)
-- VHCI on ESP32 (with special Micropython)   
-- CYW43439 HCI on Pico W (with special Micropython)      
+- VHCI on ESP32 (with special compiled Micropython)   
+- CYW43439 HCI on Pico W (with special compiled Micropython)      
 
 It provides access to the BLE commands from the Bluetooth specification, with minimal class layers or interpretation.  
 It could form the basis of a BLE library or just a BLE application.   
@@ -20,12 +20,11 @@ The ESP and Pico W Micropython versions require a special build of Micropython w
 
  HCI layer | Module     | Class        | Repo                        | Link
 -----------|------------|--------------|-----------------------------|---------------------------------------------------------
- Bluez     | hci_socket | HCITransport | HCI-BLE-Python              |
-  UART      | hci_uart   | HCITransport | HCI-BLE-Python              |
-  ESP VHCI  | HCI_ESP32  | HCI          | HCI-ESP32                   |
- Pico W    | HCI_PicoW  | HCI          | HCI-PicoW                   |
- Pico W    |            |              | CYW43439-Micropython-Driver | https://github.com/paulhamsh/CYW43439-Micropython-Driver     
-
+ Bluez     | hci_socket | HCITransport | HCI-BLE-Python              | https://github.com/paulhamsh/HCI-BLE-Python
+ UART      | hci_uart   | HCITransport | HCI-BLE-Python              | https://github.com/paulhamsh/HCI-BLE-Python
+ ESP VHCI  | HCI_ESP32  | HCI          | HCI-ESP32                   | https://github.com/paulhamsh/HCI-ESP32
+ Pico W    | HCI_PicoW  | HCI          | HCI-PicoW                   | https://github.com/paulhamsh/HCI-PicoW
+ Pico W    | CYW        | CYW          | CYW43439-Micropython-Driver | https://github.com/paulhamsh/CYW43439-Micropython-Driver     
 
 
 ## Credits
