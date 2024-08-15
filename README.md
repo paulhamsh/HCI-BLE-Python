@@ -29,11 +29,11 @@ The ESP and Pico W Micropython versions require a special build of Micropython w
 
 Also in the repos are the following (named here for completeness)    
 
- Layer     | Module        | Class        | Repo                        | Link                                                     | Description
------------|---------------|--------------|-----------------------------|----------------------------------------------------------|--------------------------------------------------
- SPI       | HCI_SPI_PicoW | HCI_SPI()    | HCI-SPI-PicoW               | https://github.com/paulhamsh/HCI-SPI-PicoW               | Micropython module to access the Pico W SPI layer
- SPI       |               |              | HCI-PicoW-C-RawSPI          | https://github.com/paulhamsh/HCI-PicoW-C-RawSPI          | C program to access the Pico W SPI layer
- HCI       |               |              | HCI-PicoW-C                 | https://github.com/paulhamsh/HCI-PicoW-C                 | C program to access the Pico W HCI layer 
+ Layer     | Repo                        | Link                                                     | Description
+-----------|-----------------------------|----------------------------------------------------------|--------------------------------------------------
+ SPI       | HCI-SPI-PicoW               | https://github.com/paulhamsh/HCI-SPI-PicoW               | Micropython module to access the Pico W SPI layer
+ SPI       | HCI-PicoW-C-RawSPI          | https://github.com/paulhamsh/HCI-PicoW-C-RawSPI          | C program to access the Pico W SPI layer
+ HCI       | HCI-PicoW-C                 | https://github.com/paulhamsh/HCI-PicoW-C                 | C program to access the Pico W HCI layer 
  
 
 
