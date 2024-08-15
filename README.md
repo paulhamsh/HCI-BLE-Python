@@ -28,7 +28,7 @@ The ESP and Pico W Micropython versions require a special build of Micropython w
  Pico W    | CYW        | CYW          | CYW43439-Micropython-Driver | https://github.com/paulhamsh/CYW43439-Micropython-Driver     
 
 Also in the repos are the following (named here for completeness)    
-<span style="font-size:0.4em">
+####     
  Layer     | Repo                        | Link                                                     | Description
 -----------|-----------------------------|----------------------------------------------------------|--------------------------------------------------
  SPI       | HCI-SPI-PicoW               | https://github.com/paulhamsh/HCI-SPI-PicoW               | Micropython module to access the Pico W SPI layer
