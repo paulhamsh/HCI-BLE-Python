@@ -18,7 +18,7 @@ BLE is a simple part of the Bluetooth specification, and doesn't require much co
 
 The ESP and Pico W Micropython versions require a special build of Micropython with the specific C code to access the HCI layers.   
 
- HCI layer | Module     | Class        | Repo                        | 
+ HCI layer | Module     | Class        | Repo                        | Link
 -----------|------------|--------------|-----------------------------|---------------------------------------------------------
  Bluez     | hci_socket | HCITransport | HCI-BLE-Python              |
   UART      | hci_uart   | HCITransport | HCI-BLE-Python              |
